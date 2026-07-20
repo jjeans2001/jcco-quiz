@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GYS 2026 — Open-Book Round (Based on Provided Papers)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ee;--card:#ffffff;--card2:#eeeae2;--border:#ddd8cc;
+  --text:#1a1916;--muted:#6e6a5e;
+  --green:#1e7a47;--green-bg:#e3f5ec;
+  --red:#c0392b;--red-bg:#fdecea;
+  --blue:#1a4f8a;--blue-bg:#e6eff9;
+  --amber:#9a5500;--amber-bg:#fdf1dc;
+  --gold:#9a7700;--gold-bg:#fdf8e1;
+  --teal:#0a6e54;--teal-bg:#e0f5ed;
+  --gys-blue:#1e3a8a;--gys-gold:#c9962f;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* TOP BAR */
+.topbar{position:sticky;top:0;z-index:200;background:#12204d;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.logo-gys{display:flex;gap:2px;align-items:flex-end}
+.logo-gys .g-letter,.logo-gys .y-letter,.logo-gys .s-letter{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700}
+.logo-gys .g-letter{color:var(--gys-gold)}
+.logo-gys .y-letter{color:#fff}
+.logo-gys .s-letter{color:var(--gys-gold)}
+.logo-text{color:#fff;font-size:13px;font-weight:500;line-height:1.3;opacity:.9}
+.logo-sub{font-size:10px;opacity:.6;color:#fff}
+.top-stats{display:flex;gap:20px;flex-shrink:0}
+.tstat{text-align:center}
+.tstat .n{font-size:17px;font-weight:700;font-family:'DM Mono',monospace}
+.tstat .l{font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.06em;margin-top:1px;color:#fff}
+.tstat .n.g{color:#4ed68a}.tstat .n.r{color:#f07070}.tstat .n.w{color:#fff}
+.databtn{padding:6px 14px;background:var(--gys-gold);color:#12204d;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Sarabun,sans-serif}
+
+/* WRAP */
+.wrap{max-width:840px;margin:0 auto;padding:24px 18px 80px}
+
+/* INFO BANNER */
+.info-banner{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--muted)}
+.info-banner b{color:var(--text)}
+
+/* DATA MODAL */
+.datamodal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:9999;overflow-y:auto;padding:20px}
+.datamodal-inner{max-width:820px;margin:0 auto;background:#fff;border-radius:14px;padding:28px;position:relative}
+.datamodal-close{position:absolute;top:14px;right:18px;font-size:22px;background:none;border:none;cursor:pointer;color:#666}
+.datamodal h2{font-size:17px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.datamodal .sub{font-size:12px;color:#888;margin-bottom:18px}
+.datamodal h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:18px 0 8px}
+.dtable{border-collapse:collapse;font-size:12.5px;width:100%;margin-bottom:14px}
+.dtable th{background:#f5f3ee;font-weight:700;padding:6px 10px;border:1px solid #ddd;text-align:left}
+.dtable td{padding:5px 10px;border:1px solid #ddd}
+.dtable tr:nth-child(even) td{background:#fafaf8}
+
+/* PROGRESS */
+.prog-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.prog-lbl{font-size:12px;color:var(--muted)}.prog-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;margin-left:auto;color:var(--text)}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gys-blue),#5d8ad8);border-radius:3px;transition:width .5s ease}
+
+/* Q NAV */
+.qnav-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.qdot{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);font-size:11px;font-family:'DM Mono',monospace;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.qdot:hover{background:var(--card2)}.qdot.cur{background:var(--text);color:#fff;border-color:var(--text)}
+.qdot.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.qdot.ng{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+
+/* QUESTION CARD */
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:0 2px 8px rgba(0,0,0,.04);animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.qmeta{display:flex;align-items:center;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace}
+.qtag{font-size:11px;padding:3px 9px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-weight:600}
+.qyear{font-size:11px;padding:3px 9px;border-radius:10px;background:var(--gold-bg);color:var(--gold);font-weight:700}
+.qdiff{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600}
+.qdiff.easy{background:var(--green-bg);color:var(--green)}
+.qdiff.medium{background:var(--amber-bg);color:var(--amber)}
+.qdiff.hard{background:var(--red-bg);color:var(--red)}
+
+/* CONTEXT BLOCK */
+.context-block{background:#f8f6f2;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.8}
+.context-block .ctx-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+
+.qen{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:5px}
+.qth{font-size:14px;line-height:1.85;color:var(--muted);margin-bottom:18px;padding-left:12px;border-left:2px solid var(--border)}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;color:var(--text);background:var(--card);text-align:left;width:100%;transition:all .14s;line-height:1.55;font-family:'Sarabun',sans-serif}
+.opt:hover:not(:disabled){background:var(--card2);border-color:#bbb4a8}
+.opt .ltr{font-weight:700;font-family:'DM Mono',monospace;font-size:13px;min-width:22px;color:var(--muted);margin-top:1px;flex-shrink:0}
+.opt.correct{background:var(--green-bg);border-color:var(--green)}.opt.correct .ltr{color:var(--green)}
+.opt.wrong{background:var(--red-bg);border-color:var(--red)}.opt.wrong .ltr{color:var(--red)}
+.opt.show-correct{background:var(--green-bg);border-color:var(--green)}.opt.show-correct .ltr{color:var(--green)}
+.opt:disabled{cursor:default}
+
+/* EXPLANATION BOX */
+.expbox{margin-top:14px;border:1px solid var(--border);border-radius:9px;overflow:hidden;display:none}
+.expbox.show{display:block}
+.exphdr{padding:9px 16px;background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.elang{padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:600;border:none;background:none;color:var(--muted);font-family:'Sarabun',sans-serif;transition:all .12s}
+.elang.active{background:var(--text);color:#fff}
+.expbody{padding:16px;font-size:13.5px;line-height:1.85;color:var(--text)}
+.exp-en,.exp-th{display:none}.exp-en.on,.exp-th.on{display:block}
+.ans-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:16px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);font-weight:700;font-size:13px;margin-bottom:10px}
+
+/* NAV */
+.navrow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:14px}
+.btn{padding:10px 22px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);font-size:14px;font-family:'Sarabun',sans-serif;color:var(--text);cursor:pointer;transition:all .14s;font-weight:500}
+.btn:hover{background:var(--card2)}.btn:disabled{opacity:.35;cursor:default}
+.btn.pri{background:var(--gys-blue);color:#fff;border-color:var(--gys-blue)}.btn.pri:hover{background:#152c68}
+
+/* RESULT */
+.result{text-align:center;padding:50px 20px}
+.result .big{font-size:68px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.result .total{font-size:20px;color:var(--muted);font-family:'DM Mono',monospace}
+.result .msg{font-size:16px;margin:14px 0 28px;color:var(--muted)}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto 24px}
+.rstat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.rstat .n{font-size:26px;font-weight:700;font-family:'DM Mono',monospace}.rstat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.tbreak{max-width:460px;margin:0 auto 24px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left}
+.tbreak h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.trow{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13px}
+.tname{min-width:140px;font-size:12px}.tbar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.tbfill{height:100%;border-radius:3px;background:var(--green)}.tpct{min-width:36px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.hidden{display:none!important}
+strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-gys">
+      <span class="g-letter">G</span><span class="y-letter">Y</span><span class="s-letter">S</span>
+    </div>
+    <div>
+      <div class="logo-text">GYS 2026 — Open-Book Round Practice</div>
+      <div class="logo-sub">Based on 2 provided research papers · AI in Medical Diagnostics</div>
+    </div>
+  </div>
+  <div class="top-stats">
+    <div class="tstat"><div class="n w" id="h-done">0</div><div class="l">Done</div></div>
+    <div class="tstat"><div class="n g" id="h-corr">0</div><div class="l">Correct</div></div>
+    <div class="tstat"><div class="n r" id="h-wrong">0</div><div class="l">Wrong</div></div>
+    <button class="databtn" onclick="document.getElementById('dp').style.display='block'">📋 REFERENCE DATA</button>
+  </div>
+</div>
+
+<div id="dp" class="datamodal">
+<div class="datamodal-inner">
+<button class="datamodal-close" onclick="document.getElementById('dp').style.display='none'">✕</button>
+<h2>📋 Reference Data — Open-Book Support</h2>
+<p class="sub">สรุปคำย่อและตัวเลขสำคัญจากทั้ง 2 เปเปอร์ เพื่อจำลองบรรยากาศ open-book / Key abbreviations and figures from both papers</p>
+
+<h3>Papers Used</h3>
+<table class="dtable">
+<tr><th>Tag</th><th>Title</th><th>Source</th></tr>
+<tr><td><b>Paper 1</b></td><td>Artificial intelligence within medical diagnostics: A multi-disease perspective</td><td>Akhtar ZB. Artif Intell Health. 2025;2(3):44-62.</td></tr>
+<tr><td><b>Paper 2</b></td><td>Artificial Intelligence Enabled Histological Prediction of Remission or Activity and Clinical Outcomes in Ulcerative Colitis</td><td>Iacucci M, et al. Gastroenterology. 2023;164(7):1180-1188.</td></tr>
+</table>
+
+<h3>Abbreviations Glossary</h3>
+<table class="dtable">
+<tr><th>Abbrev.</th><th>Meaning</th></tr>
+<tr><td>AI / ML / DL</td><td>Artificial Intelligence / Machine Learning / Deep Learning</td></tr>
+<tr><td>CNN / RNN / LSTM</td><td>Convolutional / Recurrent Neural Network / Long Short-Term Memory</td></tr>
+<tr><td>SVM / ANN / VAE</td><td>Support Vector Machine / Artificial Neural Network / Variational Autoencoder</td></tr>
+<tr><td>EHR</td><td>Electronic Health Record</td></tr>
+<tr><td>HIPAA / GDPR</td><td>US Health Insurance Portability &amp; Accountability Act / EU General Data Protection Regulation</td></tr>
+<tr><td>TRIPOD-AI / CONSORT-AI</td><td>Reporting guidelines for AI prediction models / AI clinical trials</td></tr>
+<tr><td>QAI / GAI</td><td>Quantum AI / General AI</td></tr>
+<tr><td>PHRI / RHI / NHI</td><td>PICaSSO Histologic Remission Index / Robarts Histologic Index / Nancy Histologic Index</td></tr>
+<tr><td>UCEIS / PICaSSO</td><td>Ulcerative Colitis Endoscopic Index of Severity / Paddington International virtual ChromoendoScopy ScOre</td></tr>
+<tr><td>CAD / MIL</td><td>Computer-Aided Diagnosis / Multiple Instance Learning</td></tr>
+<tr><td>AUROC / PPV / NPV / HR</td><td>Area Under ROC Curve / Positive &amp; Negative Predictive Value / Hazard Ratio</td></tr>
+</table>
+
+<h3>Paper 1 — Key Figures (p.55–56)</h3>
+<table class="dtable">
+<tr><th>Figure</th><th>Key values</th></tr>
+<tr><td>Fig. 2 — Benefits of AI</td><td>Enhanced accuracy (highest) &gt; Early detection ≈ Predictive analytics &gt; Personalized medicine (lowest, ~20%)</td></tr>
+<tr><td>Fig. 3 — Challenges of AI</td><td>Data privacy 35.0% · Regulatory frameworks 35.0% · Data integration 30.0%</td></tr>
+<tr><td>Fig. 4 — DL vs ML accuracy</td><td>Deep Learning ≈ 80% · Machine Learning ≈ 70%</td></tr>
+<tr><td>Fig. 5 — AI in medical imaging</td><td>Cancer detection (CNN) 40.0% · Diabetic retinopathy (LAPNet) 33.3% · Bone age estimation (RAGCN) 26.7%</td></tr>
+</table>
+
+<h3>Paper 2 — Key Performance Data (Table 2, p.1184)</h3>
+<table class="dtable">
+<tr><th>Index</th><th>Test set</th><th>Sensitivity</th><th>Specificity</th><th>AUROC</th></tr>
+<tr><td>PHRI</td><td>Test (n=375)</td><td>89%</td><td>85%</td><td>87%</td></tr>
+<tr><td>RHI</td><td>Test (n=374)</td><td>94%</td><td>76%</td><td>85%</td></tr>
+<tr><td>NHI</td><td>Test (n=374)</td><td>89%</td><td>79%</td><td>86%</td></tr>
+<tr><td>PHRI</td><td>External validation (n=154)</td><td>92%</td><td>81%</td><td>90%</td></tr>
+</table>
+<table class="dtable">
+<tr><th>Hazard ratios (disease flare prediction)</th><th>HR</th></tr>
+<tr><td>Pathologists' PHRI</td><td>3.56</td></tr>
+<tr><td>Pathologists' RHI</td><td>4.28</td></tr>
+<tr><td>Pathologists' NHI</td><td>3.55</td></tr>
+<tr><td>AI's PHRI</td><td>4.64</td></tr>
+</table>
+</div>
+</div>
+
+<div class="wrap">
+  <div class="info-banner">
+    แบบฝึกหัดนี้จำลอง <b>GYS 2026 Open-Book Round</b> โดยสร้างโจทย์จากเนื้อหาจริงในเปเปอร์ที่แนบมาทั้ง 2 ฉบับ (ไม่ใช่ข้อสอบจริงที่หลุดมา) แต่ละข้อมีการอ้างอิงตำแหน่งในเปเปอร์ (section/page) กำกับไว้ในเฉลย เพื่อฝึกทักษะการค้นหาและตีความข้อมูลแบบ open-book กดปุ่ม <b>📋 REFERENCE DATA</b> ด้านบนเพื่อดูสรุปคำย่อและตารางสำคัญ
+  </div>
+  <div id="quiz-view">
+    <div class="prog-card">
+      <div class="prog-row"><span class="prog-lbl">Progress — GYS 2026 Open-Book Practice · 20 ข้อ</span><span class="prog-val" id="prog-val">0/20</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="qnav-wrap" id="qnav"></div>
+    <div id="qarea"></div>
+    <div class="navrow">
+      <button class="btn" id="btn-prev" onclick="go(cur-1)">← Prev</button>
+      <span id="nav-lbl" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn pri" id="btn-next">Next →</button>
+    </div>
+  </div>
+  <div id="result-view" class="result hidden"></div>
+</div>
+
+<script>
+const QS = [{"n": 1, "topic": "Paper 1: Multi-Disease AI", "diff": "easy", "en": "According to the Methods section of Paper 1 (Akhtar, 2025), which four primary disease areas did the study's dataset represent?", "th": "ตาม Methods section ของ Paper 1 (Akhtar, 2025) ชุดข้อมูลของงานวิจัยนี้เป็นตัวแทนของกลุ่มโรคหลัก 4 กลุ่มใดบ้าง?", "opts": ["Cancer, cardiovascular diseases, neurological disorders, infectious diseases", "Cancer, dermatology, gastroenterology, psychiatry", "Cardiovascular diseases, ophthalmology, radiology, pathology", "Neurological disorders, infectious diseases, dentistry, obstetrics"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Cancer, cardiovascular diseases, neurological disorders, infectious diseases</div>\n<p><strong>Where to find it (open-book):</strong> Paper 1, Section 2 \"Methods and experimental analysis,\" p. 45, first paragraph.</p>\n<p><strong>Reasoning:</strong> The paper states the dataset was \"constructed to represent four primary disease areas\": cancer, cardiovascular diseases, neurological disorders, and infectious diseases. Dermatology, ophthalmology, psychiatry, dentistry, radiology, pathology, and obstetrics are all discussed later in Section 3 as individual sub-specialty case studies, but they are NOT the four primary categories used to build the core dataset.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Cancer, cardiovascular diseases, neurological disorders, infectious diseases</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้ (แบบเปิดหนังสือ):</strong> Paper 1, หัวข้อ 2 \"Methods and experimental analysis\" หน้า 45 ย่อหน้าแรก</p>\n<p><strong>เหตุผล:</strong> บทความระบุว่าชุดข้อมูล \"constructed to represent four primary disease areas\" คือ cancer, cardiovascular diseases, neurological disorders, และ infectious diseases ส่วน dermatology, ophthalmology, psychiatry, dentistry, radiology, pathology, และ obstetrics ล้วนถูกกล่าวถึงในหัวข้อ 3 ในฐานะกรณีศึกษาสาขาย่อย แต่ไม่ใช่ 4 กลุ่มหลักที่ใช้สร้างชุดข้อมูลหลักของงานวิจัย<br><b>คำตอบ: A ✓</b></p>"}, {"n": 2, "topic": "Paper 1: Multi-Disease AI", "diff": "easy", "en": "What train/validation split percentage did the study use when allocating the dataset for model development?", "th": "งานวิจัยแบ่งสัดส่วนชุดข้อมูลสำหรับ train/validation เป็นเปอร์เซ็นต์เท่าใด?", "opts": ["70% / 30%", "75% / 25%", "80% / 20%", "90% / 10%"], "ans": 2, "exp_en": "<div class=\"ans-badge\">✓ C. 80% / 20%</div>\n<p><strong>Where to find it:</strong> Paper 1, Section 2 \"Methods,\" p. 46, second paragraph — \"80% of the dataset was allocated for training, with the remaining 20% reserved for validation.\"</p>\n<p><strong>Reasoning:</strong> This is a directly stated fact in the methods description of the three-phase experimental process (preprocessing, training/validation, testing).</p>", "exp_th": "<div class=\"ans-badge\">✓ C. 80% / 20%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, หัวข้อ 2 \"Methods\" หน้า 46 ย่อหน้าที่สอง — ระบุว่า 80% ของชุดข้อมูลถูกจัดสรรสำหรับ training ส่วนที่เหลือ 20% สำรองไว้สำหรับ validation</p>\n<p><strong>เหตุผล:</strong> เป็นข้อเท็จจริงที่ระบุตรงๆ ในคำอธิบายกระบวนการทดลอง 3 ระยะ (preprocessing, training/validation, testing)<br><b>คำตอบ: C ✓</b></p>"}, {"n": 3, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "Which AI model type was specifically highlighted in Paper 1 as excelling at analyzing cardiovascular time-series data?", "th": "โมเดล AI ชนิดใดที่ Paper 1 ระบุเป็นพิเศษว่ามีความสามารถโดดเด่นในการวิเคราะห์ข้อมูล time-series ของระบบหัวใจและหลอดเลือด?", "opts": ["Support vector machines (SVM)", "Recurrent neural networks (RNN) with LSTM units", "Autoencoders", "Random forest"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. Recurrent neural networks (RNN) with LSTM units</div>\n<p><strong>Where to find it:</strong> Paper 1, Introduction, p. 45 — \"Recurrent neural networks (RNNs) with long short-term memory (LSTM) units, for instance, excel in analyzing time-series data, which is crucial for cardiovascular monitoring.\"</p>\n<p><strong>Reasoning:</strong> SVMs are described as handling smaller, structured tabular datasets instead. Autoencoders/VAEs are described for unsupervised anomaly detection. Random forest is mentioned later for type 2 diabetes and tuberculosis prediction, not cardiovascular time-series analysis specifically.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. Recurrent neural networks (RNN) with LSTM units</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, บทนำ หน้า 45 — \"RNNs with long short-term memory (LSTM) units...excel in analyzing time-series data, which is crucial for cardiovascular monitoring\"</p>\n<p><strong>เหตุผล:</strong> SVM ถูกอธิบายว่าใช้กับข้อมูลตารางที่มีโครงสร้างขนาดเล็กแทน Autoencoder/VAE ใช้สำหรับ unsupervised anomaly detection ส่วน random forest ถูกกล่าวถึงภายหลังสำหรับการทำนายเบาหวานชนิดที่ 2 และวัณโรค ไม่ใช่การวิเคราะห์ time-series ของหัวใจโดยเฉพาะ<br><b>คำตอบ: B ✓</b></p>"}, {"n": 4, "topic": "Paper 1: Multi-Disease AI", "diff": "easy", "en": "Which data repository provided the cardiovascular data used to build the study's dataset?", "th": "แหล่งข้อมูลใดที่ให้ข้อมูลด้านหัวใจและหลอดเลือด (cardiovascular) สำหรับสร้างชุดข้อมูลของงานวิจัย?", "opts": ["The Cancer Imaging Archive", "UK Biobank", "The COVIDx dataset", "The Human Connectome Project"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. UK Biobank</div>\n<p><strong>Where to find it:</strong> Paper 1, Section 2 \"Methods,\" p. 45 — \"cancer data were sourced from the Cancer Imaging Archive, cardiovascular data from the UK Biobank, neurological data from the Alzheimer's Disease Neuroimaging Initiative and the Human Connectome Project, and infectious disease data from the COVIDx dataset.\"</p>\n<p><strong>Reasoning:</strong> Each disease category was matched to a specific named repository — matching cardiovascular → UK Biobank is a direct read from the text; the other three options are the sources for cancer, infectious disease, and neurological data respectively.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. UK Biobank</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, หัวข้อ 2 \"Methods\" หน้า 45 — cancer data มาจาก Cancer Imaging Archive, cardiovascular data มาจาก UK Biobank, neurological data มาจาก ADNI และ Human Connectome Project, infectious disease data มาจาก COVIDx dataset</p>\n<p><strong>เหตุผล:</strong> แต่ละกลุ่มโรคถูกจับคู่กับแหล่งข้อมูลเฉพาะที่ระบุชื่อไว้ — cardiovascular ตรงกับ UK Biobank อ่านได้ตรงจากเนื้อหา ส่วนตัวเลือกอื่นเป็นแหล่งข้อมูลของ cancer, infectious disease และ neurological ตามลำดับ<br><b>คำตอบ: B ✓</b></p>"}, {"n": 5, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Figure 2 (Paper 1, p. 55) — Benefits of AI in medical diagnostics</div>The bar chart ranks four benefits of AI in medical diagnostics by perceived importance.</div><br>\nBased on the figure, which benefit was rated as the LEAST significant of the four listed?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Figure 2 (Paper 1, หน้า 55) — Benefits of AI in medical diagnostics</div>กราฟแท่งจัดอันดับประโยชน์ 4 ประการของ AI ในการวินิจฉัยทางการแพทย์ตามระดับความสำคัญที่รับรู้</div><br>\nจากกราฟ ประโยชน์ใดถูกจัดว่ามีความสำคัญ <strong>น้อยที่สุด</strong> ในทั้ง 4 ข้อ?", "opts": ["Enhanced accuracy", "Early detection", "Personalized medicine", "Predictive analytics"], "ans": 2, "exp_en": "<div class=\"ans-badge\">✓ C. Personalized medicine</div>\n<p><strong>Where to find it:</strong> Paper 1, Figure 2 caption, p. 55 — \"enhanced accuracy is perceived as the most significant, followed by early detection and predictive analytics, with personalized medicine being considered the least important of the four.\"</p>\n<p><strong>Reasoning:</strong> The figure caption itself states the ranking explicitly, so this question tests whether the reader locates and reads the caption text carefully rather than just glancing at the bar heights.</p>", "exp_th": "<div class=\"ans-badge\">✓ C. Personalized medicine</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, คำบรรยาย Figure 2 หน้า 55 — \"enhanced accuracy is perceived as the most significant, followed by early detection and predictive analytics, with personalized medicine being considered the least important of the four\"</p>\n<p><strong>เหตุผล:</strong> คำบรรยายใต้ภาพระบุลำดับไว้ตรงๆ คำถามนี้จึงทดสอบว่าผู้อ่านหาและอ่านคำบรรยายภาพอย่างละเอียดหรือไม่ ไม่ใช่แค่ดูความสูงของแท่งกราฟผ่านๆ<br><b>คำตอบ: C ✓</b></p>"}, {"n": 6, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Figure 3 (Paper 1, p. 55) — Challenges of AI in medical diagnostics</div>The pie chart shows three challenge categories: Data privacy (yellow, 35.0%), Data integration (red, 30.0%), and Regulatory frameworks (green, 35.0%).</div><br>\nWhich single challenge category has the SMALLEST share in the pie chart?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Figure 3 (Paper 1, หน้า 55) — Challenges of AI in medical diagnostics</div>แผนภูมิวงกลมแสดง 3 หมวดความท้าทาย: Data privacy (สีเหลือง 35.0%), Data integration (สีแดง 30.0%), และ Regulatory frameworks (สีเขียว 35.0%)</div><br>\nหมวดความท้าทายใดมีสัดส่วน <strong>น้อยที่สุด</strong> ในแผนภูมิวงกลม?", "opts": ["Data privacy", "Data integration", "Regulatory frameworks", "All three are exactly equal"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. Data integration</div>\n<p><strong>Where to find it:</strong> Paper 1, Figure 3, p. 55.</p>\n<p><strong>Reasoning:</strong> The pie chart shows Data privacy = 35.0%, Regulatory frameworks = 35.0%, and Data integration = 30.0%. Since 30.0% < 35.0%, Data integration has the smallest share, even though the other two categories are tied for the largest share.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. Data integration</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, Figure 3 หน้า 55</p>\n<p><strong>เหตุผล:</strong> แผนภูมิวงกลมแสดง Data privacy = 35.0%, Regulatory frameworks = 35.0%, และ Data integration = 30.0% เนื่องจาก 30.0% น้อยกว่า 35.0% ดังนั้น Data integration จึงมีสัดส่วนน้อยที่สุด แม้อีกสองหมวดจะเท่ากันที่ค่าสูงสุด<br><b>คำตอบ: B ✓</b></p>"}, {"n": 7, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Figure 4 (Paper 1, p. 56) — Comparison of Deep Learning and Machine Learning Accuracy</div>A bar chart compares classification accuracy (%) of Deep Learning versus Machine Learning techniques, with the DL bar visibly taller than the ML bar.</div><br>\nBased on the approximate bar heights shown (DL ≈ 80%, ML ≈ 70%), roughly how much higher was Deep Learning's accuracy compared to Machine Learning's?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Figure 4 (Paper 1, หน้า 56) — Comparison of Deep Learning and Machine Learning Accuracy</div>กราฟแท่งเปรียบเทียบความแม่นยำในการจำแนก (%) ระหว่าง Deep Learning กับ Machine Learning โดยแท่ง DL สูงกว่าแท่ง ML อย่างเห็นได้ชัด</div><br>\nจากความสูงของแท่งกราฟโดยประมาณ (DL ≈ 80%, ML ≈ 70%) ความแม่นยำของ Deep Learning สูงกว่า Machine Learning ประมาณเท่าใด?", "opts": ["About 5 percentage points", "About 10 percentage points", "About 20 percentage points", "They were equal"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. About 10 percentage points</div>\n<p><strong>Where to find it:</strong> Paper 1, Figure 4, p. 56, and its explanatory notes on classification accuracy.</p>\n<p><strong>Reasoning:</strong> Reading the approximate bar heights from the chart: the Deep Learning bar reaches roughly 80% and the Machine Learning bar reaches roughly 70%. 80% − 70% = 10 percentage points. This is a data-interpretation skill: reading approximate values off a bar chart and performing simple subtraction.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. ประมาณ 10 percentage points</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, Figure 4 หน้า 56 และหมายเหตุอธิบายเรื่อง classification accuracy</p>\n<p><strong>เหตุผล:</strong> อ่านความสูงโดยประมาณจากกราฟ: แท่ง Deep Learning อยู่ที่ประมาณ 80% และแท่ง Machine Learning อยู่ที่ประมาณ 70% ดังนั้น 80% − 70% = 10 percentage points ทักษะนี้คือการอ่านค่าโดยประมาณจากกราฟแท่งแล้วนำมาลบกัน<br><b>คำตอบ: B ✓</b></p>"}, {"n": 8, "topic": "Paper 1: Multi-Disease AI", "diff": "hard", "en": "Which specific deep learning model, described as using a \"pyramid-based architecture and attention mechanisms,\" was highlighted in Paper 1 for detecting and grading diabetic retinopathy?", "th": "โมเดล deep learning เฉพาะเจาะจงตัวใดที่ Paper 1 อธิบายว่าใช้ \"pyramid-based architecture and attention mechanisms\" และถูกเน้นสำหรับการตรวจจับและจัดระดับ diabetic retinopathy?", "opts": ["RAGCN", "LAPNet", "VGG16", "ResNet"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. LAPNet</div>\n<p><strong>Where to find it:</strong> Paper 1, Section 8.4 \"Superior performance of DL in medical image analysis,\" p. 56 — \"a DL model called LAPNet, using a pyramid-based architecture and attention mechanisms, proved highly effective in detecting and grading diabetic retinopathy from medical images.\"</p>\n<p><strong>Reasoning:</strong> RAGCN (Region Aggregation Graph Convolutional Network) is mentioned in the very next sentence, but for bone age estimation, not diabetic retinopathy. VGG16 and ResNet are general-purpose CNN architectures not specifically named for this task in Paper 1.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. LAPNet</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, หัวข้อ 8.4 \"Superior performance of DL in medical image analysis\" หน้า 56 — \"a DL model called LAPNet, using a pyramid-based architecture and attention mechanisms, proved highly effective in detecting and grading diabetic retinopathy\"</p>\n<p><strong>เหตุผล:</strong> RAGCN (Region Aggregation Graph Convolutional Network) ถูกกล่าวถึงในประโยคถัดไปทันที แต่สำหรับการประมาณอายุกระดูก (bone age estimation) ไม่ใช่ diabetic retinopathy ส่วน VGG16 และ ResNet เป็นสถาปัตยกรรม CNN ทั่วไปที่ไม่ได้ถูกระบุชื่อเฉพาะสำหรับงานนี้ใน Paper 1<br><b>คำตอบ: B ✓</b></p>"}, {"n": 9, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "Which company's \"Hanover project\" is named in Paper 1 as aiming to predict the most effective cancer drug treatments?", "th": "บริษัทใดที่ Paper 1 ระบุว่า \"Hanover project\" ของบริษัทนั้นมีเป้าหมายทำนายการรักษามะเร็งด้วยยาที่มีประสิทธิภาพที่สุด?", "opts": ["IBM", "Google", "Microsoft", "Tencent"], "ans": 2, "exp_en": "<div class=\"ans-badge\">✓ C. Microsoft</div>\n<p><strong>Where to find it:</strong> Paper 1, Section 3, p. 48 — \"Microsoft's Hanover project aims to predict the most effective cancer drug treatments, while Google's DeepMind works with the UK's National Health Service to detect health risks and develop cancer detection algorithms.\"</p>\n<p><strong>Reasoning:</strong> This is a direct name-matching fact. IBM is associated with Watson Oncology, Google with DeepMind, and Tencent is mentioned only briefly as a general contributor alongside Intel and Lumiata, without a named project.</p>", "exp_th": "<div class=\"ans-badge\">✓ C. Microsoft</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, หัวข้อ 3 หน้า 48 — \"Microsoft's Hanover project aims to predict the most effective cancer drug treatments, while Google's DeepMind works with the UK's National Health Service...\"</p>\n<p><strong>เหตุผล:</strong> เป็นข้อเท็จจริงที่จับคู่ชื่อโดยตรง IBM เชื่อมโยงกับ Watson Oncology, Google เชื่อมโยงกับ DeepMind ส่วน Tencent ถูกกล่าวถึงสั้นๆ เพียงในฐานะผู้มีส่วนร่วมทั่วไปร่วมกับ Intel และ Lumiata โดยไม่มีชื่อโครงการเฉพาะ<br><b>คำตอบ: C ✓</b></p>"}, {"n": 10, "topic": "Paper 1: Multi-Disease AI", "diff": "medium", "en": "According to a 2019 UK study cited in Paper 1, approximately what percentage of jobs could AI replace within two decades?", "th": "ตามผลการศึกษาปี 2019 ในสหราชอาณาจักรที่ Paper 1 อ้างอิง AI อาจแทนที่งานได้ประมาณกี่เปอร์เซ็นต์ภายในสองทศวรรษ?", "opts": ["15%", "25%", "35%", "50%"], "ans": 2, "exp_en": "<div class=\"ans-badge\">✓ C. 35%</div>\n<p><strong>Where to find it:</strong> Paper 1, Section 3, p. 49 — \"A 2019 study in the UK estimated that AI could replace up to 35% of jobs within two decades, though doctor-patient interactions are less likely to be impacted.\"</p>\n<p><strong>Reasoning:</strong> This is a directly stated statistic; the paper also clarifies that roles handling digital information (like radiology and pathology) are more at risk than roles requiring direct doctor-patient interaction.</p>", "exp_th": "<div class=\"ans-badge\">✓ C. 35%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 1, หัวข้อ 3 หน้า 49 — \"A 2019 study in the UK estimated that AI could replace up to 35% of jobs within two decades, though doctor-patient interactions are less likely to be impacted\"</p>\n<p><strong>เหตุผล:</strong> เป็นสถิติที่ระบุตรงๆ บทความยังชี้แจงเพิ่มว่าบทบาทที่เกี่ยวข้องกับข้อมูลดิจิทัล (เช่น รังสีวิทยาและพยาธิวิทยา) มีความเสี่ยงมากกว่าบทบาทที่ต้องปฏิสัมพันธ์กับผู้ป่วยโดยตรง<br><b>คำตอบ: C ✓</b></p>"}, {"n": 11, "topic": "Paper 2: UC Histology AI", "diff": "easy", "en": "How many total biopsies and how many patients made up the INITIAL (non-external-validation) study cohort in Paper 2?", "th": "กลุ่มตัวอย่างศึกษาชุด<strong>แรก</strong> (ไม่ใช่ external validation) ใน Paper 2 มีจำนวน biopsies และผู้ป่วยเท่าใด?", "opts": ["375 biopsies, 154 patients", "535 biopsies, 273 patients", "118 biopsies, 42 patients", "154 biopsies, 58 patients"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. 535 biopsies, 273 patients</div>\n<p><strong>Where to find it:</strong> Paper 2, Abstract and Results, p. 1180/1183 — \"A total of 535 digitalized biopsies (273 patients) were graded...\" / \"Initially, 535 biopsies were used to develop and test the model. These were collected in 273 patients...\"</p>\n<p><strong>Reasoning:</strong> Option D (154 biopsies, 58 patients) describes the EXTERNAL validation cohort, a common distractor for readers who don't distinguish \"initial cohort\" from \"validation cohort.\" Option A and C describe subsets used for testing and training respectively, not the whole initial cohort.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. 535 biopsies, 273 patients</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Abstract และ Results หน้า 1180/1183 — \"A total of 535 digitalized biopsies (273 patients) were graded...\" / \"Initially, 535 biopsies were used to develop and test the model. These were collected in 273 patients...\"</p>\n<p><strong>เหตุผล:</strong> ตัวเลือก D (154 biopsies, 58 patients) คือกลุ่ม external validation ซึ่งเป็นตัวลวงที่พบบ่อยสำหรับผู้ที่ไม่แยกแยะระหว่าง \"initial cohort\" กับ \"validation cohort\" ส่วนตัวเลือก A และ C เป็นจำนวนย่อยที่ใช้สำหรับ test และ train ตามลำดับ ไม่ใช่กลุ่มตัวอย่างเริ่มต้นทั้งหมด<br><b>คำตอบ: B ✓</b></p>"}, {"n": 12, "topic": "Paper 2: UC Histology AI", "diff": "medium", "en": "How was the initial 535-biopsy dataset divided for developing the CAD (computer-aided diagnosis) model?", "th": "ชุดข้อมูล 535 biopsies เริ่มต้นถูกแบ่งอย่างไรสำหรับการพัฒนาโมเดล CAD (computer-aided diagnosis)?", "opts": ["118 train / 42 calibrate / 375 test", "375 train / 118 calibrate / 42 test", "273 train / 154 calibrate / 108 test", "200 train / 200 calibrate / 135 test"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 118 train / 42 calibrate / 375 test</div>\n<p><strong>Where to find it:</strong> Paper 2, Results, p. 1183 — \"Of the initial 535 biopsies, 118 were used to train the model, 42 to calibrate it and 375 to test it.\"</p>\n<p><strong>Reasoning:</strong> This is a direct read of the three-way split. Note this is a smaller training set relative to the large test set — an unusual ratio worth noticing, since it differs from the more typical 80/20 split seen in Paper 1.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. 118 train / 42 calibrate / 375 test</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Results หน้า 1183 — \"Of the initial 535 biopsies, 118 were used to train the model, 42 to calibrate it and 375 to test it.\"</p>\n<p><strong>เหตุผล:</strong> เป็นการอ่านตรงๆ จากการแบ่งข้อมูล 3 ส่วน สังเกตว่าชุด train ค่อนข้างเล็กเมื่อเทียบกับชุด test ที่ใหญ่กว่ามาก — สัดส่วนที่ไม่ปกตินี้น่าสังเกต เพราะต่างจากสัดส่วน 80/20 ทั่วไปที่พบใน Paper 1<br><b>คำตอบ: A ✓</b></p>"}, {"n": 13, "topic": "Paper 2: UC Histology AI", "diff": "easy", "en": "Which convolutional neural network architecture formed the feature-extraction backbone of the CAD system in Paper 2?", "th": "สถาปัตยกรรม convolutional neural network ใดที่เป็น backbone สำหรับสกัดคุณลักษณะ (feature extraction) ของระบบ CAD ใน Paper 2?", "opts": ["ResNet50", "VGG16", "AlexNet", "Inception"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. VGG16</div>\n<p><strong>Where to find it:</strong> Paper 2, \"CAD System\" methods section, p. 1182 — \"a convolutional neural network based on a VGG16 architecture was applied to extract relevant features from each patch of the training biopsies.\" Also confirmed in the Supplementary Material appendix.</p>\n<p><strong>Reasoning:</strong> This is a direct architectural fact. Note this is the SAME backbone architecture (VGG16) used for the diabetic retinopathy example in Paper 1's Figure 5 caption context — a useful cross-paper connection an open-book reader might notice.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. VGG16</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, หัวข้อ \"CAD System\" หน้า 1182 — \"a convolutional neural network based on a VGG16 architecture was applied to extract relevant features from each patch of the training biopsies\" ยืนยันเพิ่มเติมใน Supplementary Material</p>\n<p><strong>เหตุผล:</strong> เป็นข้อเท็จจริงด้านสถาปัตยกรรมที่ระบุตรงๆ น่าสังเกตว่า VGG16 เป็นสถาปัตยกรรม backbone <u>เดียวกัน</u> กับที่ถูกกล่าวถึงในบริบทของ Figure 5 ใน Paper 1 — เป็นจุดเชื่อมโยงข้ามเปเปอร์ที่ผู้อ่านแบบเปิดหนังสืออาจสังเกตเห็นได้<br><b>คำตอบ: B ✓</b></p>"}, {"n": 14, "topic": "Paper 2: UC Histology AI", "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Table 2 (Paper 2, p. 1184) — CAD System Diagnostic Performance</div>The table reports sensitivity and specificity for detecting histologic activity/remission according to PHRI, RHI, and NHI cutoffs, across calibration, test, and external validation sets.</div><br>\nWhat sensitivity and specificity did the CAD system achieve for detecting PHRI-defined histologic activity/remission in the 375-biopsy TEST set?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Table 2 (Paper 2, หน้า 1184) — CAD System Diagnostic Performance</div>ตารางรายงานค่า sensitivity และ specificity สำหรับการตรวจจับ histologic activity/remission ตามเกณฑ์ PHRI, RHI, และ NHI ในชุด calibration, test, และ external validation</div><br>\nระบบ CAD ได้ค่า sensitivity และ specificity เท่าใดสำหรับการตรวจจับ PHRI-defined histologic activity/remission ในชุด test 375 biopsies?", "opts": ["94% sensitivity, 76% specificity", "89% sensitivity, 85% specificity", "89% sensitivity, 79% specificity", "92% sensitivity, 81% specificity"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. 89% sensitivity, 85% specificity</div>\n<p><strong>Where to find it:</strong> Paper 2, Table 2, \"PHRI (PHRI>0), Test (n=375)\" column, p. 1184; also stated in Results text, p. 1183.</p>\n<p><strong>Reasoning — reading the table correctly is the key skill here:</strong> Option A (94%/76%) is actually the RHI test row, not PHRI. Option C (89%/79%) is the NHI test row. Option D (92%/81%) is the PHRI EXTERNAL validation row, not the main test set. Only option B correctly matches the PHRI/Test(n=375) row.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. 89% sensitivity, 85% specificity</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Table 2 คอลัมน์ \"PHRI (PHRI>0), Test (n=375)\" หน้า 1184 และในเนื้อหา Results หน้า 1183</p>\n<p><strong>เหตุผล — ทักษะสำคัญคือการอ่านตารางให้ถูกแถว:</strong> ตัวเลือก A (94%/76%) แท้จริงเป็นแถว RHI test ไม่ใช่ PHRI ตัวเลือก C (89%/79%) เป็นแถว NHI test ตัวเลือก D (92%/81%) เป็นแถว PHRI external validation ไม่ใช่ชุด test หลัก มีเพียงตัวเลือก B เท่านั้นที่ตรงกับแถว PHRI/Test(n=375)<br><b>คำตอบ: B ✓</b></p>"}, {"n": 15, "topic": "Paper 2: UC Histology AI", "diff": "medium", "en": "What AUROC (area under the receiver operating characteristic curve) did the CAD system achieve in the EXTERNAL validation cohort (154 biopsies)?", "th": "ระบบ CAD ได้ค่า AUROC (area under the receiver operating characteristic curve) เท่าใดในกลุ่ม external validation cohort (154 biopsies)?", "opts": ["80%", "85%", "87%", "90%"], "ans": 3, "exp_en": "<div class=\"ans-badge\">✓ D. 90%</div>\n<p><strong>Where to find it:</strong> Paper 2, Table 2, \"PHRI, External validation (n=154)\" column, p. 1184 — AUROC 0.90 (95% CI, 0.86–0.95); also stated in Results text, p. 1184.</p>\n<p><strong>Reasoning:</strong> 87% is the AUROC for the main test set (n=375), a close distractor. 85% and 80% do not directly appear as AUROC values in Table 2 for PHRI, making them plausible-sounding but incorrect distractors.</p>", "exp_th": "<div class=\"ans-badge\">✓ D. 90%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Table 2 คอลัมน์ \"PHRI, External validation (n=154)\" หน้า 1184 — AUROC 0.90 (95% CI, 0.86–0.95) และยืนยันในเนื้อหา Results หน้า 1184</p>\n<p><strong>เหตุผล:</strong> 87% คือ AUROC ของชุด test หลัก (n=375) เป็นตัวลวงที่ใกล้เคียง ส่วน 85% และ 80% ไม่ได้ปรากฏเป็นค่า AUROC โดยตรงใน Table 2 สำหรับ PHRI จึงเป็นตัวลวงที่ฟังดูเป็นไปได้แต่ผิด<br><b>คำตอบ: D ✓</b></p>"}, {"n": 16, "topic": "Paper 2: UC Histology AI", "diff": "hard", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Figure 3 (Paper 2, p. 1186) — Kaplan-Meier curves and hazard ratios</div>Panel A shows pathologists' PHRI hazard ratio (HR) = 3.56, and panel C shows the AI's PHRI hazard ratio = 4.64, both for predicting disease flare-up.</div><br>\nHow should this comparison between the AI's HR (4.64) and the pathologists' HR (3.56) be interpreted?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Figure 3 (Paper 2, หน้า 1186) — Kaplan-Meier curves and hazard ratios</div>Panel A แสดง hazard ratio (HR) ของ PHRI ที่ประเมินโดยพยาธิแพทย์ = 3.56 และ panel C แสดง HR ของ PHRI ที่ประเมินโดย AI = 4.64 ทั้งคู่ใช้ทำนายการกำเริบของโรค (flare-up)</div><br>\nควรตีความการเปรียบเทียบระหว่าง HR ของ AI (4.64) กับ HR ของพยาธิแพทย์ (3.56) อย่างไร?", "opts": ["The AI's HR was lower, suggesting weaker prognostic stratification than pathologists", "The AI's HR was higher, suggesting comparable or even stronger prognostic stratification than pathologists", "The two are identical and cannot be meaningfully compared", "Hazard ratios from AI and human assessments should never be compared"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. The AI's HR was higher, suggesting comparable or even stronger prognostic stratification than pathologists</div>\n<p><strong>Where to find it:</strong> Paper 2, Results (\"CAD System Prognosis Prediction\"), p. 1185 — \"the hazard ratio was 4.64 (95% CI, 2.76–7.8), similar to, and numerically higher than, the corresponding analysis by human experts with any of the scores considered.\"</p>\n<p><strong>Reasoning:</strong> A higher hazard ratio means a stronger association between the classification (activity vs. remission) and the risk of an adverse clinical outcome (flare-up) — i.e., better ability to separate high-risk from low-risk patients. Since 4.64 > 3.56, the AI-based classification was numerically at least as good as, if not better than, the pathologists' classification at stratifying flare risk. This is a key positive finding the authors highlight.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. HR ของ AI สูงกว่า แสดงถึงความสามารถในการแบ่งกลุ่มพยากรณ์โรคที่ใกล้เคียงหรือดีกว่าพยาธิแพทย์</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Results (\"CAD System Prognosis Prediction\") หน้า 1185 — \"the hazard ratio was 4.64...similar to, and numerically higher than, the corresponding analysis by human experts with any of the scores considered\"</p>\n<p><strong>เหตุผล:</strong> Hazard ratio ที่สูงกว่าหมายถึงความสัมพันธ์ที่แข็งแกร่งกว่าระหว่างการจำแนกกลุ่ม (activity vs. remission) กับความเสี่ยงของผลลัพธ์ทางคลินิกที่ไม่พึงประสงค์ (การกำเริบของโรค) กล่าวคือ ความสามารถในการแยกผู้ป่วยกลุ่มเสี่ยงสูงออกจากกลุ่มเสี่ยงต่ำได้ดีกว่า เนื่องจาก 4.64 > 3.56 การจำแนกโดย AI จึงมีค่าตัวเลขที่ดีเท่ากับหรือดีกว่าการจำแนกโดยพยาธิแพทย์ในการแบ่งระดับความเสี่ยงของการกำเริบโรค นี่คือข้อค้นพบเชิงบวกสำคัญที่ผู้เขียนเน้นย้ำ<br><b>คำตอบ: B ✓</b></p>"}, {"n": 17, "topic": "Paper 2: UC Histology AI", "diff": "easy", "en": "On average, how quickly did the CAD system deliver a histologic assessment result per slide?", "th": "โดยเฉลี่ยแล้ว ระบบ CAD ใช้เวลาในการให้ผลการประเมินทางจุลพยาธิวิทยาต่อ slide เร็วเพียงใด?", "opts": ["0.98 seconds", "9.8 seconds", "98 seconds", "9.8 minutes"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. 9.8 seconds</div>\n<p><strong>Where to find it:</strong> Paper 2, Results, p. 1184 — \"The CAD system delivered the results in an average of 9.8 seconds per slide.\"</p>\n<p><strong>Reasoning:</strong> This is a directly stated fact used to support the paper's argument that the system can \"expedite\" and \"standardize\" histologic reading compared to time-consuming manual scoring by pathologists, which the Introduction describes as requiring dedicated training and being limited by high interobserver variability.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. 9.8 วินาที</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Results หน้า 1184 — \"The CAD system delivered the results in an average of 9.8 seconds per slide.\"</p>\n<p><strong>เหตุผล:</strong> เป็นข้อเท็จจริงที่ระบุตรงๆ ซึ่งใช้สนับสนุนข้อโต้แย้งของบทความว่าระบบสามารถ \"เร่งความเร็ว\" และ \"สร้างมาตรฐาน\" การอ่านผลทางจุลพยาธิวิทยา เมื่อเทียบกับการให้คะแนนด้วยมือที่ใช้เวลานานของพยาธิแพทย์ ซึ่งบทนำระบุว่าต้องการการฝึกฝนเฉพาะทางและมีข้อจำกัดจากความแปรปรวนระหว่างผู้ประเมินสูง<br><b>คำตอบ: B ✓</b></p>"}, {"n": 18, "topic": "Paper 2: UC Histology AI", "diff": "medium", "en": "According to the PHRI (PICaSSO Histologic Remission Index) definition used in Paper 2, what does a PHRI score of 0 indicate?", "th": "ตามนิยามของ PHRI (PICaSSO Histologic Remission Index) ที่ใช้ใน Paper 2 คะแนน PHRI เท่ากับ 0 หมายถึงอะไร?", "opts": ["Maximum inflammatory activity", "Absence of neutrophils in all four assessed biopsy regions (remission)", "Presence of dysplasia in the biopsy", "The biopsy sample was inadequate for grading"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. Absence of neutrophils in all four assessed biopsy regions (remission)</div>\n<p><strong>Where to find it:</strong> Paper 2, Discussion, p. 1185 — \"PHRI defines activity and remission of UC according to the presence or absence of neutrophils in areas of the biopsy: superficial epithelium, lamina propria, cryptal epithelium, and cryptal lumen; absence of neutrophils from all areas (PHRI = 0) is considered remission, whereas their presence defines disease activity.\"</p>\n<p><strong>Reasoning:</strong> This tests whether the reader can locate and correctly restate a specific technical definition given later in the Discussion section, rather than assuming a score of \"0\" always means \"worst\" (a natural but incorrect assumption without reading the definition).</p>", "exp_th": "<div class=\"ans-badge\">✓ B. ไม่พบ neutrophils ในทั้ง 4 บริเวณของ biopsy ที่ประเมิน (remission)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Discussion หน้า 1185 — \"PHRI defines activity and remission of UC according to the presence or absence of neutrophils in areas of the biopsy: superficial epithelium, lamina propria, cryptal epithelium, and cryptal lumen; absence of neutrophils from all areas (PHRI = 0) is considered remission\"</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบว่าผู้อ่านสามารถหาและอธิบายนิยามทางเทคนิคเฉพาะที่ให้ไว้ในหัวข้อ Discussion ได้อย่างถูกต้องหรือไม่ แทนที่จะสันนิษฐานเอาเองว่าคะแนน \"0\" หมายถึง \"แย่ที่สุด\" เสมอ (ซึ่งเป็นข้อสันนิษฐานที่ดูเป็นธรรมชาติแต่ผิด หากไม่อ่านนิยามให้ละเอียด)<br><b>คำตอบ: B ✓</b></p>"}, {"n": 19, "topic": "Paper 2: UC Histology AI", "diff": "hard", "en": "Which of the following is explicitly stated as a LIMITATION of the CAD system in Paper 2's Discussion section?", "th": "ข้อใดต่อไปนี้ถูกระบุอย่างชัดเจนว่าเป็น <strong>ข้อจำกัด</strong> ของระบบ CAD ในหัวข้อ Discussion ของ Paper 2?", "opts": ["It cannot grade the severity/degree of inflammatory activity, only classify activity vs. remission", "It has never been validated on an external, independent cohort", "It only works on unstained (non-H&E) slides", "It cannot detect neutrophils at all"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. It cannot grade the severity/degree of inflammatory activity, only classify activity vs. remission</div>\n<p><strong>Where to find it:</strong> Paper 2, Discussion, p. 1186 — \"The main limitation of our work is that, at the current stage, the system cannot grade inflammatory activity.\" The same paragraph adds two more limitations: it does not address dysplasia detection, and it can only be used with digitalized biopsies.</p>\n<p><strong>Reasoning:</strong> Option B is directly contradicted by the paper — it WAS externally validated (154 biopsies from 2 additional centers), which is actually presented as a strength. Option C and D are not supported anywhere in the text; the system's core function is detecting neutrophils via an attention-constrained module, so \"cannot detect neutrophils at all\" directly contradicts the entire methodology.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ไม่สามารถให้เกรดระดับความรุนแรงของการอักเสบได้ ทำได้เพียงจำแนก activity vs. remission</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, Discussion หน้า 1186 — \"The main limitation of our work is that, at the current stage, the system cannot grade inflammatory activity.\" ย่อหน้าเดียวกันยังเพิ่มข้อจำกัดอีก 2 ข้อ: ไม่ครอบคลุมการตรวจ dysplasia และใช้ได้เฉพาะกับ biopsies ที่ถูกแปลงเป็นดิจิทัลเท่านั้น</p>\n<p><strong>เหตุผล:</strong> ตัวเลือก B ขัดแย้งโดยตรงกับเนื้อหาบทความ — ระบบนี้<u>ได้รับ</u>การ external validation แล้ว (154 biopsies จาก 2 ศูนย์เพิ่มเติม) ซึ่งถูกนำเสนอเป็นจุดแข็งด้วยซ้ำ ตัวเลือก C และ D ไม่มีหลักฐานสนับสนุนในเนื้อหาเลย ฟังก์ชันหลักของระบบคือการตรวจจับ neutrophils ผ่าน attention-constrained module ดังนั้น \"ตรวจจับ neutrophils ไม่ได้เลย\" จึงขัดแย้งกับวิธีการทั้งหมดโดยตรง<br><b>คำตอบ: A ✓</b></p>"}, {"n": 20, "topic": "Paper 2: UC Histology AI", "diff": "medium", "en": "The CAD system's prediction of the corresponding ENDOSCOPIC activity (using UCEIS and PICaSSO cutoffs, Supplementary Table 1) achieved AUROC values in approximately what range?", "th": "การทำนาย ENDOSCOPIC activity ที่สอดคล้องกันของระบบ CAD (โดยใช้เกณฑ์ UCEIS และ PICaSSO, Supplementary Table 1) ได้ค่า AUROC อยู่ในช่วงประมาณเท่าใด?", "opts": ["60–65%", "70–75%", "79–82%", "95–98%"], "ans": 2, "exp_en": "<div class=\"ans-badge\">✓ C. 79–82%</div>\n<p><strong>Where to find it:</strong> Paper 2, \"CAD System Prediction of Endoscopic Activity/Remission According to PICaSSO and UCEIS,\" p. 1184, and Supplementary Table 1 — AUROC of 79% for UCEIS and 82% for PICaSSO.</p>\n<p><strong>Reasoning:</strong> This is notably LOWER than the AUROC for the histologic prediction task itself (87% for PHRI on the same test set). The paper explains this is expected and \"acceptable for a computer\" because it mirrors the imperfect real-world correlation between endoscopy and histology observed even between human assessors — an important nuance for interpreting the secondary analysis correctly.</p>", "exp_th": "<div class=\"ans-badge\">✓ C. 79–82%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Paper 2, หัวข้อ \"CAD System Prediction of Endoscopic Activity/Remission According to PICaSSO and UCEIS\" หน้า 1184 และ Supplementary Table 1 — AUROC 79% สำหรับ UCEIS และ 82% สำหรับ PICaSSO</p>\n<p><strong>เหตุผล:</strong> ค่านี้ต่ำกว่าค่า AUROC ของงานทำนายผลทางจุลพยาธิวิทยาโดยตรงอย่างเห็นได้ชัด (87% สำหรับ PHRI ในชุด test เดียวกัน) บทความอธิบายว่าเป็นเรื่องคาดการณ์ได้และ \"ยอมรับได้สำหรับคอมพิวเตอร์\" เพราะสะท้อนความสัมพันธ์ที่ไม่สมบูรณ์แบบระหว่าง endoscopy กับ histology ในโลกจริงที่พบได้แม้ระหว่างผู้ประเมินที่เป็นมนุษย์ด้วยกันเอง — เป็นความละเอียดอ่อนสำคัญสำหรับการตีความการวิเคราะห์รองนี้อย่างถูกต้อง<br><b>คำตอบ: C ✓</b></p>"}];
+
+/* ═══════════ ENGINE ═══════════ */
+let cur=0;
+const answered=new Array(QS.length).fill(null);
+const chosen=new Array(QS.length).fill(null);
+const expLang=new Array(QS.length).fill("en");
+
+function updateHeader(){
+  const done=answered.filter(a=>a!==null).length;
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  document.getElementById('h-done').textContent=done;
+  document.getElementById('h-corr').textContent=corr;
+  document.getElementById('h-wrong').textContent=done-corr;
+  document.getElementById('prog-fill').style.width=(done/QS.length*100)+'%';
+  document.getElementById('prog-val').textContent=done+'/'+QS.length;
+}
+function renderNav(){
+  document.getElementById('qnav').innerHTML=QS.map((q,i)=>{
+    let cls='qdot';
+    if(i===cur)cls+=' cur';
+    else if(answered[i]!==null)cls+=answered[i]===QS[i].ans?' ok':' ng';
+    return `<button class="${cls}" onclick="go(${i})" title="Q${q.n}: ${q.topic}">Q${q.n}</button>`;
+  }).join('');
+}
+function renderQ(){
+  const q=QS[cur];
+  const ltrs=['A','B','C','D'];
+  const isAns=answered[cur]!==null;
+  const lang=expLang[cur];
+  let optsH=q.opts.map((o,i)=>{
+    let cls='opt';
+    if(isAns){if(i===q.ans)cls+=' show-correct';if(i===chosen[cur]&&chosen[cur]!==q.ans)cls+=' wrong';if(i===chosen[cur]&&chosen[cur]===q.ans)cls+=' correct';}
+    return `<button class="${cls}" ${isAns?'disabled':''} onclick="pick(${i})"><span class="ltr">${ltrs[i]}.</span><span>${o}</span></button>`;
+  }).join('');
+  const expShow=isAns?' show':'';
+  const enA=lang==='en'?' active':'';
+  const thA=lang==='th'?' active':'';
+  document.getElementById('qarea').innerHTML=`
+<div class="qcard">
+  <div class="qmeta">
+    <span class="qnum">Q${q.n} / ${QS.length}</span>
+    <span class="qyear">${q.topic.split(':')[0]}</span>
+    <span class="qtag">${q.topic.split(': ')[1]||q.topic}</span>
+    <span class="qdiff ${q.diff}">${({easy:'Easy',medium:'Medium',hard:'Hard'})[q.diff]}</span>
+  </div>
+  <div class="qen">${q.en}</div>
+  <div class="qth">${q.th}</div>
+  <div class="opts">${optsH}</div>
+  <div class="expbox${expShow}">
+    <div class="exphdr">
+      Explanation / เฉลยละเอียด
+      <button class="elang${enA}" onclick="setLang(${cur},'en')">EN</button>
+      <button class="elang${thA}" onclick="setLang(${cur},'th')">TH ภาษาไทย</button>
+    </div>
+    <div class="expbody">
+      <div class="exp-en${lang==='en'?' on':''}">${q.exp_en}</div>
+      <div class="exp-th${lang==='th'?' on':''}">${q.exp_th}</div>
+    </div>
+  </div>
+</div>`;
+  document.getElementById('nav-lbl').textContent=`${cur+1} / ${QS.length}`;
+  document.getElementById('btn-prev').disabled=(cur===0);
+  const btnNext=document.getElementById('btn-next');
+  if(cur===QS.length-1){btnNext.textContent='ดูผลรวม →';btnNext.onclick=showResult;}
+  else{btnNext.textContent='Next →';btnNext.onclick=()=>go(cur+1);}
+}
+function setLang(i,l){expLang[i]=l;renderQ();}
+function pick(i){
+  if(answered[cur]!==null)return;
+  chosen[cur]=i;answered[cur]=i;
+  renderNav();renderQ();updateHeader();
+}
+function go(i){if(i<0||i>=QS.length)return;cur=i;renderAll();}
+function renderAll(){renderNav();renderQ();updateHeader();}
+
+function showResult(){
+  document.getElementById('quiz-view').classList.add('hidden');
+  const rv=document.getElementById('result-view');rv.classList.remove('hidden');
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  const done=answered.filter(a=>a!==null).length;
+  const pct=Math.round(corr/QS.length*100);
+  const msg=pct>=80?'เยี่ยมมาก! 🎉':pct>=60?'ดีมาก ทบทวนข้อที่ผิดด้วยนะ 👍':'ลองทบทวนแล้วทำใหม่อีกรอบ 📚';
+  const TOPICS=[...new Set(QS.map(q=>q.topic))];
+  let topicRows=TOPICS.map(t=>{
+    const ti=QS.map((_,i)=>i).filter(i=>QS[i].topic===t);
+    const tc=ti.filter(i=>answered[i]===QS[i].ans).length;
+    const pt=Math.round(tc/ti.length*100);
+    return `<div class="trow"><div class="tname">${t}</div><div class="tbar"><div class="tbfill" style="width:${pt}%"></div></div><div class="tpct">${tc}/${ti.length}</div></div>`;
+  }).join('');
+  rv.innerHTML=`
+<div class="big">${corr}<span class="total">/${QS.length}</span></div>
+<div class="msg">${msg}</div>
+<div class="rgrid">
+  <div class="rstat"><div class="n" style="color:var(--green)">${corr}</div><div class="l">ถูก</div></div>
+  <div class="rstat"><div class="n" style="color:var(--red)">${done-corr}</div><div class="l">ผิด</div></div>
+  <div class="rstat"><div class="n">${pct}%</div><div class="l">คะแนน</div></div>
+</div>
+<div class="tbreak"><h3>By Paper</h3>${topicRows}</div>
+<button class="btn pri" onclick="restart()" style="padding:12px 32px;font-size:15px;margin-bottom:10px">ทำใหม่</button><br>
+<button class="btn" onclick="reviewWrong()" style="font-size:13px">ทบทวนข้อที่ผิด</button>`;
+}
+function restart(){
+  answered.fill(null);chosen.fill(null);expLang.fill("en");
+  cur=0;
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+function reviewWrong(){
+  const wrong=QS.map((_,i)=>i).filter(i=>answered[i]!==null&&answered[i]!==QS[i].ans);
+  if(!wrong.length){alert('ไม่มีข้อผิด! 🎉');return;}
+  cur=wrong[0];
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>
