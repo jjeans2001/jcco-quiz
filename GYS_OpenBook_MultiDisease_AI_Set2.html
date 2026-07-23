@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GYS Open-Book Practice — Multi-Disease AI Diagnostics (Set 2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ee;--card:#ffffff;--card2:#eeeae2;--border:#ddd8cc;
+  --text:#1a1916;--muted:#6e6a5e;
+  --green:#1e7a47;--green-bg:#e3f5ec;
+  --red:#c0392b;--red-bg:#fdecea;
+  --blue:#1a4f8a;--blue-bg:#e6eff9;
+  --amber:#9a5500;--amber-bg:#fdf1dc;
+  --gold:#9a7700;--gold-bg:#fdf8e1;
+  --teal:#0a6e54;--teal-bg:#e0f5ed;
+  --gys-blue:#1e3a8a;--gys-gold:#c9962f;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+.topbar{position:sticky;top:0;z-index:200;background:#12204d;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.logo-gys{display:flex;gap:2px;align-items:flex-end}
+.logo-gys .g-letter,.logo-gys .y-letter,.logo-gys .s-letter{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700}
+.logo-gys .g-letter{color:var(--gys-gold)}
+.logo-gys .y-letter{color:#fff}
+.logo-gys .s-letter{color:var(--gys-gold)}
+.logo-text{color:#fff;font-size:13px;font-weight:500;line-height:1.3;opacity:.9}
+.logo-sub{font-size:10px;opacity:.6;color:#fff}
+.top-stats{display:flex;gap:20px;flex-shrink:0}
+.tstat{text-align:center}
+.tstat .n{font-size:17px;font-weight:700;font-family:'DM Mono',monospace}
+.tstat .l{font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.06em;margin-top:1px;color:#fff}
+.tstat .n.g{color:#4ed68a}.tstat .n.r{color:#f07070}.tstat .n.w{color:#fff}
+.databtn{padding:6px 14px;background:var(--gys-gold);color:#12204d;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Sarabun,sans-serif}
+
+.wrap{max-width:840px;margin:0 auto;padding:24px 18px 80px}
+
+.info-banner{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--muted)}
+.info-banner b{color:var(--text)}
+
+.difflegend{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.dchip{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--card)}
+.dchip .dot{width:8px;height:8px;border-radius:50%}
+.dchip.easy .dot{background:var(--green)}.dchip.medium .dot{background:var(--amber)}.dchip.hard .dot{background:var(--red)}
+
+.datamodal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:9999;overflow-y:auto;padding:20px}
+.datamodal-inner{max-width:820px;margin:0 auto;background:#fff;border-radius:14px;padding:28px;position:relative}
+.datamodal-close{position:absolute;top:14px;right:18px;font-size:22px;background:none;border:none;cursor:pointer;color:#666}
+.datamodal h2{font-size:17px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.datamodal .sub{font-size:12px;color:#888;margin-bottom:18px}
+.datamodal h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:18px 0 8px}
+.dtable{border-collapse:collapse;font-size:12.5px;width:100%;margin-bottom:14px}
+.dtable th{background:#f5f3ee;font-weight:700;padding:6px 10px;border:1px solid #ddd;text-align:left}
+.dtable td{padding:5px 10px;border:1px solid #ddd}
+.dtable tr:nth-child(even) td{background:#fafaf8}
+
+.prog-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.prog-lbl{font-size:12px;color:var(--muted)}.prog-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;margin-left:auto;color:var(--text)}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gys-blue),#5d8ad8);border-radius:3px;transition:width .5s ease}
+
+.qnav-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.qdot{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);font-size:11px;font-family:'DM Mono',monospace;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.qdot:hover{background:var(--card2)}.qdot.cur{background:var(--text);color:#fff;border-color:var(--text)}
+.qdot.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.qdot.ng{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:0 2px 8px rgba(0,0,0,.04);animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.qmeta{display:flex;align-items:center;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace}
+.qdiff{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600}
+.qdiff.easy{background:var(--green-bg);color:var(--green)}
+.qdiff.medium{background:var(--amber-bg);color:var(--amber)}
+.qdiff.hard{background:var(--red-bg);color:var(--red)}
+
+.context-block{background:#f8f6f2;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.8}
+.context-block .ctx-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+
+.qen{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:5px}
+.qth{font-size:14px;line-height:1.85;color:var(--muted);margin-bottom:18px;padding-left:12px;border-left:2px solid var(--border)}
+
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;color:var(--text);background:var(--card);text-align:left;width:100%;transition:all .14s;line-height:1.55;font-family:'Sarabun',sans-serif}
+.opt:hover:not(:disabled){background:var(--card2);border-color:#bbb4a8}
+.opt .ltr{font-weight:700;font-family:'DM Mono',monospace;font-size:13px;min-width:22px;color:var(--muted);margin-top:1px;flex-shrink:0}
+.opt.correct{background:var(--green-bg);border-color:var(--green)}.opt.correct .ltr{color:var(--green)}
+.opt.wrong{background:var(--red-bg);border-color:var(--red)}.opt.wrong .ltr{color:var(--red)}
+.opt.show-correct{background:var(--green-bg);border-color:var(--green)}.opt.show-correct .ltr{color:var(--green)}
+.opt:disabled{cursor:default}
+
+.expbox{margin-top:14px;border:1px solid var(--border);border-radius:9px;overflow:hidden;display:none}
+.expbox.show{display:block}
+.exphdr{padding:9px 16px;background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.elang{padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:600;border:none;background:none;color:var(--muted);font-family:'Sarabun',sans-serif;transition:all .12s}
+.elang.active{background:var(--text);color:#fff}
+.expbody{padding:16px;font-size:13.5px;line-height:1.85;color:var(--text)}
+.exp-en,.exp-th{display:none}.exp-en.on,.exp-th.on{display:block}
+.ans-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:16px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);font-weight:700;font-size:13px;margin-bottom:10px}
+
+.navrow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:14px}
+.btn{padding:10px 22px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);font-size:14px;font-family:'Sarabun',sans-serif;color:var(--text);cursor:pointer;transition:all .14s;font-weight:500}
+.btn:hover{background:var(--card2)}.btn:disabled{opacity:.35;cursor:default}
+.btn.pri{background:var(--gys-blue);color:#fff;border-color:var(--gys-blue)}.btn.pri:hover{background:#152c68}
+
+.result{text-align:center;padding:50px 20px}
+.result .big{font-size:68px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.result .total{font-size:20px;color:var(--muted);font-family:'DM Mono',monospace}
+.result .msg{font-size:16px;margin:14px 0 28px;color:var(--muted)}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto 24px}
+.rstat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.rstat .n{font-size:26px;font-weight:700;font-family:'DM Mono',monospace}.rstat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.tbreak{max-width:460px;margin:0 auto 24px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left}
+.tbreak h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.trow{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13px}
+.tname{min-width:90px;font-size:12px}.tbar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.tbfill{height:100%;border-radius:3px;background:var(--green)}.tpct{min-width:36px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.hidden{display:none!important}
+strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-gys">
+      <span class="g-letter">G</span><span class="y-letter">Y</span><span class="s-letter">S</span>
+    </div>
+    <div>
+      <div class="logo-text">GYS Open-Book Practice — Set 2</div>
+      <div class="logo-sub">Artificial Intelligence within Medical Diagnostics: A Multi-Disease Perspective (Akhtar, 2025)</div>
+    </div>
+  </div>
+  <div class="top-stats">
+    <div class="tstat"><div class="n w" id="h-done">0</div><div class="l">Done</div></div>
+    <div class="tstat"><div class="n g" id="h-corr">0</div><div class="l">Correct</div></div>
+    <div class="tstat"><div class="n r" id="h-wrong">0</div><div class="l">Wrong</div></div>
+    <button class="databtn" onclick="document.getElementById('dp').style.display='block'">📋 REFERENCE DATA</button>
+  </div>
+</div>
+
+<div id="dp" class="datamodal">
+<div class="datamodal-inner">
+<button class="datamodal-close" onclick="document.getElementById('dp').style.display='none'">✕</button>
+<h2>📋 Reference Data — Open-Book Support</h2>
+<p class="sub">สรุปข้อมูลสำคัญจากบทความ เพื่อจำลองบรรยากาศ open-book (ชุดที่ 2 — ไม่ซ้ำกับข้อมูลในชุดแรก)</p>
+
+<h3>Paper Info</h3>
+<table class="dtable">
+<tr><th>Title</th><td>Artificial intelligence within medical diagnostics: A multi-disease perspective</td></tr>
+<tr><th>Author</th><td>Zarif Bin Akhtar</td></tr>
+<tr><th>Source</th><td>Artificial Intelligence in Health. 2025;2(3):44-62.</td></tr>
+</table>
+
+<h3>Key Facts Quick Reference</h3>
+<table class="dtable">
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Data privacy regulations complied with</td><td>HIPAA, GDPR</td></tr>
+<tr><td>Optimizer / loss function (fine-tuning)</td><td>Adam optimizer / cross-entropy loss</td></tr>
+<tr><td>Train/validation split</td><td>80% / 20%</td></tr>
+<tr><td>AI growth rate 2023-2030</td><td>37.3% per year</td></tr>
+<tr><td>DeepMind acute kidney injury prediction</td><td>up to 48 hours in advance</td></tr>
+<tr><td>Jobs potentially replaced by AI (2019 UK study)</td><td>up to 35% within two decades</td></tr>
+<tr><td>1960s-70s expert systems (historical)</td><td>Dendral, MYCIN</td></tr>
+<tr><td>DARPA's role</td><td>Promotes Explainable AI (XAI) development</td></tr>
+<tr><td>Spectral AI's wound-care tool</td><td>DeepView® (uses medical imaging)</td></tr>
+</table>
+
+<h3>Figures 2-5 Summary (p.55-56)</h3>
+<table class="dtable">
+<tr><th>Figure</th><th>Key values</th></tr>
+<tr><td>Fig. 2 — Benefits of AI</td><td>Enhanced accuracy (highest) &gt; Early detection ≈ Predictive analytics &gt; Personalized medicine (lowest, ~20%)</td></tr>
+<tr><td>Fig. 3 — Challenges of AI</td><td>Data privacy 35.0% · Regulatory frameworks 35.0% · Data integration 30.0%</td></tr>
+<tr><td>Fig. 4 — DL vs ML accuracy</td><td>Deep Learning ≈ 80% · Machine Learning ≈ 70%</td></tr>
+<tr><td>Fig. 5 — AI in medical imaging</td><td>Cancer detection (CNN) 40.0% · Diabetic retinopathy (LAPNet) 33.3% · Bone age estimation (RAGCN) 26.7%</td></tr>
+</table>
+
+<h3>Section 8.2 — Model Accuracy Stats</h3>
+<table class="dtable">
+<tr><th>Model</th><th>Task</th><th>Accuracy</th></tr>
+<tr><td>Random forest</td><td>Tuberculosis detection</td><td>&gt;98%</td></tr>
+<tr><td>RNN / LSTM</td><td>GI disease classification</td><td>~97%</td></tr>
+</table>
+
+<h3>Companies &amp; AI Healthcare Projects</h3>
+<table class="dtable">
+<tr><th>Company</th><th>Project / Focus</th></tr>
+<tr><td>IBM</td><td>Watson Oncology — cancer treatment (with Memorial Sloan Kettering, Cleveland Clinic)</td></tr>
+<tr><td>Microsoft</td><td>Hanover project — predicts effective cancer drug treatments</td></tr>
+<tr><td>Google</td><td>DeepMind — health risk detection with UK NHS; kidney injury prediction</td></tr>
+<tr><td>Neuralink</td><td>Brain chip technology for neuroprosthetics</td></tr>
+</table>
+</div>
+</div>
+
+<div class="wrap">
+  <div class="info-banner">
+    แบบฝึกหัดนี้คือ <b>ชุดที่ 2</b> ของ GYS Open-Book Practice สำหรับบทความ Multi-Disease AI Diagnostics (Akhtar, 2025) — <b>ทุกข้อเป็นข้อใหม่ ไม่ซ้ำกับชุดแรก (10 ข้อ)</b> และเรียงลำดับจาก<b>ง่ายไปยาก</b> ข้อ 1-4 เน้นค้นหาข้อเท็จจริงตรงๆ ข้อ 5-9 เน้นอ่านกราฟ/เชื่อมโยงข้อมูล ข้อ 10-15 เน้นสังเคราะห์และเปรียบเทียบข้อมูลข้ามส่วนของบทความ กดปุ่ม <b>📋 REFERENCE DATA</b> เพื่อดูข้อมูลอ้างอิงระหว่างทำ
+  </div>
+  <div class="difflegend">
+    <div class="dchip easy"><span class="dot"></span>Easy (Q1-4) — ค้นหาข้อเท็จจริงตรงๆ</div>
+    <div class="dchip medium"><span class="dot"></span>Medium (Q5-9) — อ่านกราฟ/เชื่อมโยงข้อมูล</div>
+    <div class="dchip hard"><span class="dot"></span>Hard (Q10-15) — สังเคราะห์ข้ามหัวข้อ</div>
+  </div>
+  <div id="quiz-view">
+    <div class="prog-card">
+      <div class="prog-row"><span class="prog-lbl">Progress — Multi-Disease AI Diagnostics Open-Book · Set 2 · 15 ข้อ</span><span class="prog-val" id="prog-val">0/15</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="qnav-wrap" id="qnav"></div>
+    <div id="qarea"></div>
+    <div class="navrow">
+      <button class="btn" id="btn-prev" onclick="go(cur-1)">← Prev</button>
+      <span id="nav-lbl" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn pri" id="btn-next">Next →</button>
+    </div>
+  </div>
+  <div id="result-view" class="result hidden"></div>
+</div>
+
+<script>
+const QS = [{"n": 1, "diff": "easy", "en": "According to the Methods section, which two data privacy regulations were patient demographics, medical histories, and clinical parameters anonymized to comply with?", "th": "ตาม Methods ข้อมูลประชากรผู้ป่วย ประวัติการรักษา และพารามิเตอร์ทางคลินิก ถูกทำให้ไม่ระบุตัวตนเพื่อให้สอดคล้องกับกฎระเบียบความเป็นส่วนตัวของข้อมูล 2 ฉบับใด?", "opts": ["HIPAA and GDPR", "FDA and WHO", "TRIPOD-AI and CONSORT-AI", "ECCO and NIHR"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. HIPAA and GDPR</div>\n<p><strong>Where to find it:</strong> Section 2, \"Methods and experimental analysis,\" p. 45 — \"patient demographics, medical histories, and clinical parameters were anonymized to comply with data privacy standards such as the Health Insurance Portability and Accountability Act (HIPAA) and General Data Protection Regulation (GDPR).\"</p>\n<p><strong>Reasoning:</strong> A direct lookup. Note the distractor \"TRIPOD-AI and CONSORT-AI\" are real guidelines mentioned elsewhere in the paper, but those are AI *reporting* guidelines, not *data privacy* regulations — a useful distinction to keep straight.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. HIPAA และ GDPR</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 2 \"Methods and experimental analysis\" หน้า 45 — \"patient demographics, medical histories, and clinical parameters were anonymized to comply with data privacy standards such as the Health Insurance Portability and Accountability Act (HIPAA) and General Data Protection Regulation (GDPR)\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรง สังเกตว่าตัวเลือกหลอก \"TRIPOD-AI และ CONSORT-AI\" เป็นแนวทางจริงที่กล่าวถึงในที่อื่นของบทความ แต่เป็นแนวทาง<u>การรายงานผล</u>ของ AI ไม่ใช่กฎระเบียบ<u>ความเป็นส่วนตัวของข้อมูล</u> — เป็นข้อแตกต่างที่ควรแยกให้ชัดเจน<br><b>คำตอบ: A ✓</b></p>"}, {"n": 2, "diff": "easy", "en": "According to Section 6.7, which organization has been instrumental in promoting the development of Explainable AI (XAI) models that are interpretable and trustworthy for healthcare professionals?", "th": "ตามหัวข้อ 6.7 หน่วยงานใดมีบทบาทสำคัญในการส่งเสริมการพัฒนาแบบจำลอง Explainable AI (XAI) ที่ตีความได้และน่าเชื่อถือสำหรับบุคลากรทางการแพทย์?", "opts": ["Defense Advanced Research Projects Agency (DARPA)", "World Health Organization (WHO)", "U.S. Food and Drug Administration (FDA)", "International Telecommunication Union (ITU)"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Defense Advanced Research Projects Agency (DARPA)</div>\n<p><strong>Where to find it:</strong> Section 6.7, \"The application of mHealth,\" p. 53 — \"The Defense Advanced Research Projects Agency has been instrumental in promoting the development of AI models that are interpretable, trustworthy, and usable by healthcare professionals.\"</p>\n<p><strong>Reasoning:</strong> A direct lookup, though slightly surprising at first glance since DARPA is a defense research agency, not a healthcare body — a good reminder that XAI research often originates from cross-disciplinary sources.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Defense Advanced Research Projects Agency (DARPA)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 6.7 \"The application of mHealth\" หน้า 53 — \"The Defense Advanced Research Projects Agency has been instrumental in promoting the development of AI models that are interpretable, trustworthy, and usable by healthcare professionals\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรง แม้จะดูน่าแปลกใจเล็กน้อยในแวบแรก เพราะ DARPA เป็นหน่วยงานวิจัยด้านการทหาร ไม่ใช่หน่วยงานด้านสุขภาพ — เป็นข้อเตือนใจที่ดีว่างานวิจัย XAI มักมีที่มาจากแหล่งสหวิทยาการข้ามสาขา<br><b>คำตอบ: A ✓</b></p>"}, {"n": 3, "diff": "easy", "en": "According to Section 5.2, what does Spectral AI's DeepView® technology specifically use to analyze wound depth, infection risks, and healing progress?", "th": "ตามหัวข้อ 5.2 เทคโนโลยี DeepView® ของ Spectral AI ใช้สิ่งใดโดยเฉพาะในการวิเคราะห์ความลึกของบาดแผล ความเสี่ยงต่อการติดเชื้อ และความก้าวหน้าของการรักษา?", "opts": ["Medical imaging", "Blood sample analysis", "Patient self-reported surveys", "Body temperature sensors"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Medical imaging</div>\n<p><strong>Where to find it:</strong> Section 5.2, \"AI in wound and burn management,\" p. 51 — \"AI-powered tools like Spectral AI's DeepView® technology use medical imaging to analyze wound depth, infection risks, and healing progress.\"</p>\n<p><strong>Reasoning:</strong> A direct factual lookup within a fairly short, specific sub-section of the paper.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. การถ่ายภาพทางการแพทย์ (Medical imaging)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 5.2 \"AI in wound and burn management\" หน้า 51 — \"AI-powered tools like Spectral AI's DeepView® technology use medical imaging to analyze wound depth, infection risks, and healing progress\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรงในหัวข้อย่อยสั้นๆ ที่เจาะจงของบทความ<br><b>คำตอบ: A ✓</b></p>"}, {"n": 4, "diff": "easy", "en": "According to Section 7, what is AI's expected annual growth rate in the healthcare sector from 2023 to 2030?", "th": "ตามหัวข้อ 7 อัตราการเติบโตรายปีที่คาดการณ์ไว้ของ AI ในภาคการดูแลสุขภาพตั้งแต่ปี 2023 ถึง 2030 คือเท่าใด?", "opts": ["37.3%", "15.8%", "50.0%", "22.6%"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 37.3%</div>\n<p><strong>Where to find it:</strong> Section 7, \"AI in the realm of diagnosing medical conditions and its impact on healthcare,\" p. 54 — \"With an expected annual growth rate of 37.3% from 2023 to 2030, AI is becoming a key player in various aspects of medicine.\"</p>\n<p><strong>Reasoning:</strong> A direct statistic lookup — useful to distinguish from the other statistic in the paper about job displacement (35% of jobs potentially replaced), since both numbers are close and easy to confuse.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. 37.3%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 7 \"AI in the realm of diagnosing medical conditions and its impact on healthcare\" หน้า 54 — \"With an expected annual growth rate of 37.3% from 2023 to 2030, AI is becoming a key player in various aspects of medicine\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาสถิติโดยตรง — ควรแยกให้ดีจากสถิติอีกตัวในบทความเรื่องการแทนที่งาน (AI อาจแทนที่งานได้ถึง 35%) เพราะตัวเลขทั้งสองใกล้เคียงกันและสับสนได้ง่าย<br><b>คำตอบ: A ✓</b></p>"}, {"n": 5, "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Figure 5 — AI applications in medical imaging</div>The pie chart shows three applications: Cancer detection (CNN), Diabetic retinopathy (LAPNet), and Bone age estimation (RAGCN).</div><br>\nWhat percentage share does \"Bone age estimation (RAGCN)\" hold in Figure 5?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Figure 5 — AI applications in medical imaging</div>แผนภูมิวงกลมแสดง 3 การประยุกต์ใช้: Cancer detection (CNN), Diabetic retinopathy (LAPNet), และ Bone age estimation (RAGCN)</div><br>\n\"Bone age estimation (RAGCN)\" มีสัดส่วนกี่เปอร์เซ็นต์ใน Figure 5?", "opts": ["26.7%", "33.3%", "40.0%", "20.0%"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 26.7%</div>\n<p><strong>Where to find it:</strong> Figure 5, p. 56 — Cancer detection (CNN) 40.0%, Diabetic retinopathy (LAPNet) 33.3%, Bone age estimation (RAGCN) 26.7%.</p>\n<p><strong>Reasoning:</strong> This tests careful reading of the smallest slice in the pie chart. Note the distractor 33.3% belongs to Diabetic retinopathy (LAPNet) and 40.0% belongs to Cancer detection (CNN) — easy to mix up if reading quickly, since RAGCN was previously tested (in Set 1) only for what it stands for, not its percentage share.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. 26.7%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Figure 5 หน้า 56 — Cancer detection (CNN) 40.0%, Diabetic retinopathy (LAPNet) 33.3%, Bone age estimation (RAGCN) 26.7%</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบการอ่านส่วนที่เล็กที่สุดของแผนภูมิวงกลมอย่างละเอียด สังเกตว่าตัวเลือกหลอก 33.3% เป็นของ Diabetic retinopathy (LAPNet) และ 40.0% เป็นของ Cancer detection (CNN) — สับสนได้ง่ายหากอ่านเร็วเกินไป เพราะ RAGCN เคยถูกถามในชุดที่ 1 เฉพาะเรื่องว่ามันย่อมาจากอะไร ไม่ใช่สัดส่วนเปอร์เซ็นต์<br><b>คำตอบ: A ✓</b></p>"}, {"n": 6, "diff": "medium", "en": "Which two historical \"expert systems\" from the 1960s and 1970s are named as having laid the groundwork for future AI applications in medicine?", "th": "\"ระบบผู้เชี่ยวชาญ\" (expert systems) ทางประวัติศาสตร์ 2 ระบบใดจากทศวรรษ 1960 และ 1970 ที่ถูกระบุว่าวางรากฐานสำหรับการประยุกต์ใช้ AI ทางการแพทย์ในอนาคต?", "opts": ["Dendral and MYCIN", "Watson and DeepMind", "ELIZA and PARRY", "AlphaGo and GPT-1"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Dendral and MYCIN</div>\n<p><strong>Where to find it:</strong> Section 3, p. 49-50 — \"Historically, AI in healthcare has evolved since the 1960s and 1970s, starting with expert systems such as Dendral and MYCIN, which laid the groundwork for future AI applications in medicine.\"</p>\n<p><strong>Reasoning:</strong> A direct historical fact lookup. Watson and DeepMind are modern AI systems mentioned elsewhere in the paper (IBM's cancer treatment platform and Google's health risk detection, respectively) but they are NOT the 1960s-70s expert systems referenced here — a good distractor testing whether the reader confuses old and new AI systems mentioned across different parts of the paper.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Dendral และ MYCIN</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 3 หน้า 49-50 — \"Historically, AI in healthcare has evolved since the 1960s and 1970s, starting with expert systems such as Dendral and MYCIN, which laid the groundwork for future AI applications in medicine\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงทางประวัติศาสตร์โดยตรง Watson และ DeepMind เป็นระบบ AI ยุคใหม่ที่กล่าวถึงในที่อื่นของบทความ (แพลตฟอร์มรักษามะเร็งของ IBM และการตรวจความเสี่ยงสุขภาพของ Google ตามลำดับ) แต่<u>ไม่ใช่</u>ระบบผู้เชี่ยวชาญยุค 1960-70 ที่กล่าวถึงในที่นี้ — เป็นตัวลวงที่ดีที่ทดสอบว่าผู้อ่านสับสนระหว่างระบบ AI เก่าและใหม่ที่กล่าวถึงในคนละส่วนของบทความหรือไม่<br><b>คำตอบ: A ✓</b></p>"}, {"n": 7, "diff": "medium", "en": "According to Section 7, Google's DeepMind algorithms can predict acute kidney injury how many hours before it occurs?", "th": "ตามหัวข้อ 7 อัลกอริทึมของ Google DeepMind สามารถทำนายการบาดเจ็บของไตเฉียบพลันได้ล่วงหน้ากี่ชั่วโมงก่อนที่จะเกิดขึ้นจริง?", "opts": ["48 hours", "12 hours", "24 hours", "72 hours"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 48 hours</div>\n<p><strong>Where to find it:</strong> Section 7, p. 54-55 — \"Real-world applications such as Google's DeepMind algorithms, which predict acute kidney injury up to 48 h before it occurs, demonstrate AI's life-saving potential by enabling healthcare providers to take preventive measures.\"</p>\n<p><strong>Reasoning:</strong> A direct statistic lookup. This is presented as a concrete example of AI's \"life-saving potential,\" distinct from DeepMind's other role mentioned elsewhere in the paper (partnering with the UK's NHS for general health-risk detection).</p>", "exp_th": "<div class=\"ans-badge\">✓ A. 48 ชั่วโมง</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 7 หน้า 54-55 — \"Real-world applications such as Google's DeepMind algorithms, which predict acute kidney injury up to 48 h before it occurs, demonstrate AI's life-saving potential by enabling healthcare providers to take preventive measures\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาสถิติโดยตรง นี่ถูกนำเสนอเป็นตัวอย่างที่เป็นรูปธรรมของ \"ศักยภาพในการช่วยชีวิต\" ของ AI ซึ่งแยกจากบทบาทอื่นของ DeepMind ที่กล่าวถึงในที่อื่นของบทความ (ความร่วมมือกับ NHS อังกฤษเพื่อตรวจความเสี่ยงสุขภาพทั่วไป)<br><b>คำตอบ: A ✓</b></p>"}, {"n": 8, "diff": "medium", "en": "What does the paper's concept of \"label choice bias\" specifically refer to?", "th": "แนวคิด \"label choice bias\" ในบทความหมายถึงอะไรโดยเฉพาะ?", "opts": ["Using a proxy measure, such as healthcare costs, to predict patient needs — which can skew results against certain groups", "Labeling training images with the wrong disease name by human error", "A bias that only occurs when AI is trained on unlabeled data", "Choosing to exclude certain diseases from a study without justification"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Using a proxy measure, such as healthcare costs, to predict patient needs — which can skew results against certain groups</div>\n<p><strong>Where to find it:</strong> Section 3, p. 49 — \"A specific form of bias, 'label choice bias,' arises when proxy measures are used in algorithms, such as using healthcare costs to predict patient needs, which can skew results against certain groups, like Black patients.\"</p>\n<p><strong>Reasoning:</strong> This is a conceptually subtle definition worth understanding carefully: the AI isn't wrong about the *proxy* it was asked to predict (healthcare cost), but that proxy is an imperfect stand-in for the *actual* thing that matters (real medical need) — and the gap between the two ends up disadvantaging certain groups, since healthcare costs are influenced by access to care, not just health status.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. การใช้ตัวชี้วัดตัวแทน (proxy) เช่น ค่าใช้จ่ายด้านสุขภาพ เพื่อทำนายความต้องการของผู้ป่วย — ซึ่งอาจบิดเบือนผลลัพธ์ให้เอนเอียงต่อกลุ่มบางกลุ่ม</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 3 หน้า 49 — \"A specific form of bias, 'label choice bias,' arises when proxy measures are used in algorithms, such as using healthcare costs to predict patient needs, which can skew results against certain groups, like Black patients\"</p>\n<p><strong>เหตุผล:</strong> นี่คือนิยามที่ละเอียดอ่อนทางแนวคิดที่ควรทำความเข้าใจอย่างรอบคอบ: AI ไม่ได้ทำนาย*ตัวชี้วัดตัวแทน* (ค่าใช้จ่ายด้านสุขภาพ) ผิด แต่ตัวชี้วัดตัวแทนนั้นเป็นตัวแทนที่ไม่สมบูรณ์แบบของสิ่งที่*สำคัญจริงๆ* (ความต้องการทางการแพทย์ที่แท้จริง) — และช่องว่างระหว่างสองสิ่งนี้ท้ายที่สุดก็สร้างความเสียเปรียบให้กับกลุ่มบางกลุ่ม เพราะค่าใช้จ่ายด้านสุขภาพได้รับอิทธิพลจากการเข้าถึงการรักษา ไม่ใช่แค่สถานะสุขภาพเพียงอย่างเดียว<br><b>คำตอบ: A ✓</b></p>"}, {"n": 9, "diff": "medium", "en": "According to the Methods, which optimizer and loss function were used during model fine-tuning to optimize performance?", "th": "ตาม Methods optimizer และ loss function ใดที่ถูกใช้ในระหว่างการปรับแต่งแบบจำลอง (fine-tuning) เพื่อปรับประสิทธิภาพให้เหมาะสมที่สุด?", "opts": ["Adam optimizer with cross-entropy loss", "SGD optimizer with mean squared error loss", "RMSprop optimizer with hinge loss", "AdaGrad optimizer with Huber loss"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Adam optimizer with cross-entropy loss</div>\n<p><strong>Where to find it:</strong> Section 2, \"Methods,\" p. 46 — \"Model fine-tuning employed backpropagation with the Adam optimizer and cross-entropy loss functions to optimize the performance of the model.\"</p>\n<p><strong>Reasoning:</strong> A direct factual lookup of a specific technical detail in the Methods section — the kind of granular detail that's easy to skip past when first reading the paper but simple to verify with an open-book search.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Adam optimizer พร้อมกับ cross-entropy loss</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 2 \"Methods\" หน้า 46 — \"Model fine-tuning employed backpropagation with the Adam optimizer and cross-entropy loss functions to optimize the performance of the model\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรงของรายละเอียดทางเทคนิคเฉพาะในหัวข้อ Methods — เป็นรายละเอียดปลีกย่อยที่มองข้ามได้ง่ายตอนอ่านครั้งแรก แต่ตรวจสอบได้ง่ายด้วยการค้นหาแบบเปิดหนังสือ<br><b>คำตอบ: A ✓</b></p>"}, {"n": 10, "diff": "hard", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Connecting Figure 2 and Section 8.1</div>Figure 2 shows survey respondents ranked \"Enhanced accuracy\" as the most significant benefit of AI in medical diagnostics. Section 8.1 separately describes the ImageNet Large-Scale Visual Recognition Challenge (ILSVRC).</div><br>\nHow does the ILSVRC milestone described in Section 8.1 help explain WHY \"enhanced accuracy\" might be perceived as AI's most significant benefit in Figure 2?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">เชื่อมโยง Figure 2 กับหัวข้อ 8.1</div>Figure 2 แสดงว่าผู้ตอบแบบสำรวจจัดอันดับ \"Enhanced accuracy\" เป็นประโยชน์ที่สำคัญที่สุดของ AI ในงานวินิจฉัยทางการแพทย์ หัวข้อ 8.1 อธิบายถึง ImageNet Large-Scale Visual Recognition Challenge (ILSVRC) แยกต่างหาก</div><br>\nเหตุการณ์สำคัญ ILSVRC ที่อธิบายในหัวข้อ 8.1 ช่วยอธิบายได้อย่างไรว่าทำไม \"enhanced accuracy\" จึงอาจถูกมองว่าเป็นประโยชน์ที่สำคัญที่สุดของ AI ใน Figure 2?", "opts": ["ILSVRC demonstrated that CNNs could significantly reduce error rates in image classification, sometimes surpassing human performance — providing concrete historical evidence for why accuracy gains are seen as AI's standout strength", "ILSVRC was a survey of doctors that directly produced the data shown in Figure 2", "ILSVRC proved that AI accuracy is always inferior to traditional diagnostic methods", "ILSVRC and Figure 2 are unrelated; the connection is coincidental"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. ILSVRC demonstrated CNNs reducing error rates, sometimes surpassing human performance</div>\n<p><strong>Where to find it:</strong> Section 8.1, p. 55 — \"The turning point for DL was marked by the ImageNet Large-Scale Visual Recognition Challenge (ILSVRC), where CNNs significantly reduced error rates in object detection and classification tasks, surpassing traditional methods and, in some cases, human performance.\" Combined with Figure 2's caption, p. 55, showing \"enhanced accuracy is perceived as the most significant\" benefit.</p>\n<p><strong>Reasoning:</strong> This question requires synthesizing two separate parts of the paper that aren't explicitly linked in the text itself — a hallmark of a \"hard\" open-book question. The logical connection is: ILSVRC is presented as concrete historical proof that DL/CNN-based accuracy improvements are real and substantial (sometimes beating humans), which provides a plausible explanation for why survey respondents in Figure 2 would rate \"enhanced accuracy\" as AI's most valued benefit — the perception is grounded in an actual documented technical milestone, not just a vague impression.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ILSVRC แสดงให้เห็นว่า CNNs ลดอัตราข้อผิดพลาดได้ บางครั้งเหนือกว่าประสิทธิภาพมนุษย์</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 8.1 หน้า 55 — \"The turning point for DL was marked by the ImageNet Large-Scale Visual Recognition Challenge (ILSVRC), where CNNs significantly reduced error rates in object detection and classification tasks, surpassing traditional methods and, in some cases, human performance\" ร่วมกับคำบรรยาย Figure 2 หน้า 55 ที่แสดงว่า \"enhanced accuracy is perceived as the most significant\" ประโยชน์</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ต้องสังเคราะห์สองส่วนที่แยกจากกันของบทความซึ่งไม่ได้เชื่อมโยงกันอย่างชัดเจนในเนื้อหาเอง — เป็นเอกลักษณ์ของคำถามเปิดหนังสือระดับ \"ยาก\" ความเชื่อมโยงเชิงตรรกะคือ: ILSVRC ถูกนำเสนอเป็นหลักฐานทางประวัติศาสตร์ที่เป็นรูปธรรมว่าการพัฒนาความแม่นยำที่อาศัย DL/CNN นั้นเป็นจริงและมีนัยสำคัญ (บางครั้งเหนือกว่ามนุษย์) ซึ่งให้คำอธิบายที่สมเหตุสมผลว่าทำไมผู้ตอบแบบสำรวจใน Figure 2 จึงให้คะแนน \"enhanced accuracy\" เป็นประโยชน์ที่มีคุณค่าที่สุดของ AI — การรับรู้นี้มีรากฐานจากเหตุการณ์สำคัญทางเทคนิคที่มีบันทึกไว้จริง ไม่ใช่แค่ความประทับใจที่คลุมเครือ<br><b>คำตอบ: A ✓</b></p>"}, {"n": 11, "diff": "hard", "en": "Section 8.2 reports two specific accuracy statistics: one for tuberculosis detection and one for classifying gastrointestinal (GI) diseases. Which AI model/algorithm was credited with EACH of these two results?", "th": "หัวข้อ 8.2 รายงานสถิติความแม่นยำเฉพาะ 2 ตัว: หนึ่งสำหรับการตรวจหาวัณโรค และหนึ่งสำหรับการจำแนกโรคทางเดินอาหาร (GI) แบบจำลอง/อัลกอริทึม AI ใดที่ได้รับเครดิตสำหรับผลลัพธ์ทั้งสองนี้<strong>แต่ละอัน</strong>?", "opts": ["Random forest algorithms → tuberculosis (>98% accuracy); RNN and LSTM networks → GI diseases (~97% accuracy)", "RNN and LSTM networks → tuberculosis (>98% accuracy); Random forest algorithms → GI diseases (~97% accuracy)", "CNNs → both tuberculosis and GI diseases, at the same accuracy", "SVM → tuberculosis; Naïve Bayes → GI diseases"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Random forest → tuberculosis (>98%); RNN/LSTM → GI diseases (~97%)</div>\n<p><strong>Where to find it:</strong> Section 8.2, p. 55-56 — \"mobile platforms leveraging random forest algorithms demonstrated over 98% accuracy in tuberculosis detection. RNN and LSTM networks further achieved approximately 97% accuracy in classifying gastrointestinal (GI) diseases.\"</p>\n<p><strong>Reasoning:</strong> This tests precise attribution of which model achieved which result — the two sentences appear back-to-back in the text, making it easy to accidentally swap the pairings if reading quickly. Option B represents exactly this kind of swap, a common and realistic mistake to guard against.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Random forest → วัณโรค (>98%); RNN/LSTM → โรคทางเดินอาหาร (~97%)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 8.2 หน้า 55-56 — \"mobile platforms leveraging random forest algorithms demonstrated over 98% accuracy in tuberculosis detection. RNN and LSTM networks further achieved approximately 97% accuracy in classifying gastrointestinal (GI) diseases\"</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบการระบุที่มาอย่างแม่นยำว่าแบบจำลองใดได้ผลลัพธ์ใด — สองประโยคนี้ปรากฏติดกันในเนื้อหา ทำให้สลับคู่กันได้ง่ายโดยไม่ตั้งใจหากอ่านเร็วเกินไป ตัวเลือก B คือการสลับแบบนี้พอดี ซึ่งเป็นความผิดพลาดที่พบได้บ่อยและสมจริงที่ควรระวัง<br><b>คำตอบ: A ✓</b></p>"}, {"n": 12, "diff": "hard", "en": "According to Section 9 (Discussion), the paper identifies reduced sensitivity in a specific demographic bias affecting cardiovascular disease diagnosis. Which TWO groups were specifically named as showing this reduced sensitivity?", "th": "ตามหัวข้อ 9 (Discussion) บทความระบุอคติทางประชากรที่เฉพาะเจาะจงว่ามี sensitivity ลดลงในการวินิจฉัยโรคหัวใจและหลอดเลือด กลุ่มใด 2 กลุ่มที่ถูกระบุเฉพาะเจาะจงว่าแสดง sensitivity ที่ลดลงนี้?", "opts": ["Women and certain ethnic minorities", "Elderly patients and young children", "Rural populations and urban populations", "Patients with insurance and patients without insurance"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Women and certain ethnic minorities</div>\n<p><strong>Where to find it:</strong> Section 9, \"Discussions and future directions,\" p. 57 — \"The models demonstrated reduced sensitivity in certain demographic subgroups, notably in women and ethnic minorities in cardiovascular disease diagnosis.\"</p>\n<p><strong>Reasoning:</strong> This connects to the broader bias discussion introduced earlier in Section 3 (the general concept of datasets over-representing certain groups, e.g., white males) but this specific sentence in Section 9 narrows the claim down to a concrete, named example: reduced sensitivity specifically in women and ethnic minorities, specifically for cardiovascular disease diagnosis — a good example of a general theme (bias) being grounded in a specific stated finding later in the paper.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ผู้หญิงและชนกลุ่มน้อยทางเชื้อชาติบางกลุ่ม</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 9 \"Discussions and future directions\" หน้า 57 — \"The models demonstrated reduced sensitivity in certain demographic subgroups, notably in women and ethnic minorities in cardiovascular disease diagnosis\"</p>\n<p><strong>เหตุผล:</strong> คำตอบนี้เชื่อมโยงกับการอภิปรายเรื่องอคติในวงกว้างที่กล่าวถึงก่อนหน้าในหัวข้อ 3 (แนวคิดทั่วไปเรื่องชุดข้อมูลที่มีตัวแทนกลุ่มบางกลุ่มมากเกินไป เช่น ผู้ชายผิวขาว) แต่ประโยคเฉพาะนี้ในหัวข้อ 9 จำกัดขอบเขตข้อกล่าวอ้างให้แคบลงเป็นตัวอย่างที่เป็นรูปธรรมและระบุชื่อชัดเจน: sensitivity ที่ลดลงเฉพาะในผู้หญิงและชนกลุ่มน้อยทางเชื้อชาติ เฉพาะสำหรับการวินิจฉัยโรคหัวใจและหลอดเลือด — เป็นตัวอย่างที่ดีของธีมทั่วไป (อคติ) ที่มีรากฐานจากข้อค้นพบเฉพาะที่ระบุไว้ภายหลังในบทความ<br><b>คำตอบ: A ✓</b></p>"}, {"n": 13, "diff": "hard", "en": "According to Section 6.2, what is the key structural difference between \"expert systems\" and \"ML-based systems\" in terms of how each approach gains its knowledge?", "th": "ตามหัวข้อ 6.2 ความแตกต่างเชิงโครงสร้างที่สำคัญระหว่าง \"expert systems\" และ \"ML-based systems\" ในแง่ของวิธีที่แต่ละแบบได้มาซึ่งความรู้คืออะไร?", "opts": ["Expert systems rely on a predefined/structured knowledge base and rules (limiting scalability); ML systems learn and improve from data without requiring explicit programming", "Expert systems learn from data automatically; ML systems require a human to manually input every rule", "Both systems use exactly the same knowledge-acquisition method, just with different hardware", "Expert systems only work with images; ML systems only work with text data"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Expert systems use predefined rules (limited scalability); ML systems learn from data without explicit programming</div>\n<p><strong>Where to find it:</strong> Section 6.2, \"Evolution of AI in healthcare,\" p. 52 — \"Expert systems are designed to replicate human decision-making, drawing from a structured knowledge base and inference engine...However, expert systems have limitations in scalability and adaptability due to their reliance on predefined knowledge bases. On the other hand, ML algorithms have become increasingly prevalent due to their ability to learn and improve from large datasets without requiring explicit programming.\"</p>\n<p><strong>Reasoning:</strong> This is essentially the reverse relationship of option B, a common way distractors are constructed — by flipping which system does what. Understanding this distinction connects to the historical Dendral/MYCIN question (Q6): those older systems were exactly this \"expert system\" type, built on predefined rules rather than learning from data, which explains why the paper describes them as having \"limitations in scalability\" compared to modern ML approaches.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Expert systems ใช้กฎที่กำหนดไว้ล่วงหน้า (ขยายขนาดได้จำกัด); ML systems เรียนรู้จากข้อมูลโดยไม่ต้องเขียนโปรแกรมชัดเจน</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 6.2 \"Evolution of AI in healthcare\" หน้า 52 — \"Expert systems are designed to replicate human decision-making, drawing from a structured knowledge base and inference engine...expert systems have limitations in scalability and adaptability due to their reliance on predefined knowledge bases. On the other hand, ML algorithms have become increasingly prevalent due to their ability to learn and improve from large datasets without requiring explicit programming\"</p>\n<p><strong>เหตุผล:</strong> ตัวเลือก B โดยพื้นฐานคือความสัมพันธ์แบบสลับกัน ซึ่งเป็นวิธีทั่วไปที่ตัวลวงถูกสร้างขึ้น — โดยการสลับว่าระบบไหนทำอะไร การเข้าใจข้อแตกต่างนี้เชื่อมโยงกับคำถามประวัติศาสตร์ Dendral/MYCIN (Q6): ระบบเก่าเหล่านั้นเป็น \"expert system\" แบบนี้พอดี สร้างขึ้นจากกฎที่กำหนดไว้ล่วงหน้าแทนที่จะเรียนรู้จากข้อมูล ซึ่งอธิบายได้ว่าทำไมบทความจึงบรรยายว่าระบบเหล่านั้นมี \"ข้อจำกัดด้านการขยายขนาด\" เมื่อเทียบกับแนวทาง ML สมัยใหม่<br><b>คำตอบ: A ✓</b></p>"}, {"n": 14, "diff": "hard", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Connecting Section 3 and Section 6.7</div>Section 3 describes public hesitancy about sharing health data (a UK survey found 63% hesitant, and cites concerns like Roche's purchase of 2 million cancer patients' data). Section 6.7 separately describes Federated Learning (FL) as a technique used in mHealth AI.</div><br>\nBased on how FL is described in Section 6.7, why would it directly help address the specific privacy concerns raised earlier in Section 3?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">เชื่อมโยงหัวข้อ 3 กับหัวข้อ 6.7</div>หัวข้อ 3 อธิบายความลังเลใจของสาธารณะเรื่องการแบ่งปันข้อมูลสุขภาพ (ผลสำรวจในสหราชอาณาจักรพบว่า 63% ลังเลใจ และยกตัวอย่างความกังวล เช่น Roche ที่ซื้อข้อมูลผู้ป่วยมะเร็ง 2 ล้านคน) หัวข้อ 6.7 อธิบาย Federated Learning (FL) แยกต่างหากว่าเป็นเทคนิคที่ใช้ใน mHealth AI</div><br>\nจากวิธีที่ FL ถูกอธิบายไว้ในหัวข้อ 6.7 เหตุใดมันจึงช่วยแก้ไขความกังวลด้านความเป็นส่วนตัวที่ถูกยกขึ้นมาก่อนหน้าในหัวข้อ 3 ได้โดยตรง?", "opts": ["FL allows AI models to be trained on data that remains physically within each healthcare organization (never centrally pooled or sold), directly countering fears like the Roche data-purchase example", "FL requires all patient data to be uploaded to a single central company database, similar to what Roche did", "FL has no connection to data privacy; it is purely a technique to make models run faster on mobile phones", "FL eliminates the need for any patient data at all in training AI models"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. FL keeps data within each healthcare organization, directly countering fears like the Roche example</div>\n<p><strong>Where to find it:</strong> Section 6.7, p. 53 — \"FL, in particular, ensures that patient data remains within healthcare organizations, while still enabling the training of powerful AI models on distributed datasets. This allows for the development of personalized care algorithms without compromising data security.\" Compare with Section 3, p. 49 — the Roche example of purchasing \"healthcare data for 2 million cancer patients,\" and the UK survey where \"63% of respondents...were hesitant about data sharing for AI development.\"</p>\n<p><strong>Reasoning:</strong> This is a \"hard\" synthesis question because the paper never explicitly states \"FL solves the Roche/privacy problem discussed in Section 3\" — the reader has to recognize the logical link between two separately-discussed concepts pages apart: the core privacy fear is that patient data gets centrally pooled, sold, or misused once it leaves a hospital's control; FL's defining feature (keeping data physically within each organization while still training on it collectively) is a direct technical countermeasure to exactly that fear, even though the two sections never cross-reference each other explicitly.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. FL เก็บข้อมูลไว้ภายในองค์กรด้านการดูแลสุขภาพแต่ละแห่ง แก้ไขความกังวลอย่างตัวอย่าง Roche ได้โดยตรง</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 6.7 หน้า 53 — \"FL, in particular, ensures that patient data remains within healthcare organizations, while still enabling the training of powerful AI models on distributed datasets. This allows for the development of personalized care algorithms without compromising data security\" เทียบกับหัวข้อ 3 หน้า 49 — ตัวอย่าง Roche ที่ซื้อ \"ข้อมูลสุขภาพของผู้ป่วยมะเร็ง 2 ล้านคน\" และผลสำรวจในสหราชอาณาจักรที่ \"63% ของผู้ตอบแบบสอบถาม...ลังเลใจเกี่ยวกับการแบ่งปันข้อมูลสำหรับการพัฒนา AI\"</p>\n<p><strong>เหตุผล:</strong> นี่เป็นคำถามสังเคราะห์ระดับ \"ยาก\" เพราะบทความไม่เคยระบุตรงๆ ว่า \"FL แก้ปัญหาเรื่อง Roche/ความเป็นส่วนตัวที่กล่าวถึงในหัวข้อ 3\" — ผู้อ่านต้องสังเกตความเชื่อมโยงเชิงตรรกะระหว่างสองแนวคิดที่ถูกกล่าวถึงแยกกันห่างกันหลายหน้า: ความกังวลหลักด้านความเป็นส่วนตัวคือข้อมูลผู้ป่วยจะถูกรวมศูนย์ ขาย หรือถูกนำไปใช้ในทางที่ผิดเมื่อออกจากการควบคุมของโรงพยาบาล คุณสมบัติหลักของ FL (เก็บข้อมูลไว้ภายในแต่ละองค์กรทางกายภาพในขณะที่ยังฝึกโมเดลร่วมกันได้) เป็นมาตรการตอบโต้ทางเทคนิคโดยตรงต่อความกังวลนั้นพอดี แม้ทั้งสองหัวข้อจะไม่เคยอ้างอิงถึงกันอย่างชัดเจน<br><b>คำตอบ: A ✓</b></p>"}, {"n": 15, "diff": "hard", "en": "According to Section 4 (Diagnosis in AI), what does the concept of \"diagnosability\" specifically refer to, and what kind of \"balance\" does the paper say must be struck when designing for it?", "th": "ตามหัวข้อ 4 (Diagnosis in AI) แนวคิด \"diagnosability\" หมายถึงอะไรโดยเฉพาะ และบทความระบุว่าต้องสร้าง \"ความสมดุล\" แบบใดเมื่อออกแบบระบบให้มีคุณสมบัตินี้?", "opts": ["The ability of a system to provide an unambiguous diagnosis; balancing the goal of reducing sensor costs against increasing the ability to detect faulty behaviors", "The speed at which a diagnosis can be delivered; balancing speed against the size of the training dataset", "The ability of an AI to diagnose multiple diseases simultaneously; balancing accuracy against patient comfort", "The legal right of a patient to receive a diagnosis; balancing privacy against transparency"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. The ability to provide an unambiguous diagnosis; balancing sensor cost reduction against fault-detection ability</div>\n<p><strong>Where to find it:</strong> Section 4, \"Diagnosis in AI,\" p. 50 — \"Diagnosability, a key concept, refers to the ability of the system to provide an unambiguous diagnosis. This is particularly crucial during system design, where a balance must be struck between reducing sensor costs and increasing the ability to detect faulty behaviors.\"</p>\n<p><strong>Reasoning:</strong> This is a somewhat abstract, engineering-flavored concept embedded within a short paragraph, easy to misread as being about something more familiar (like diagnostic speed or legal rights) rather than its actual precise meaning — the specific trade-off named is an engineering one: fewer/cheaper sensors save money but may reduce the system's ability to clearly pinpoint faults, so system designers must balance these two competing goals deliberately, not just default to whichever is cheaper.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ความสามารถในการให้การวินิจฉัยที่ไม่คลุมเครือ; สมดุลระหว่างการลดต้นทุนเซนเซอร์กับการเพิ่มความสามารถตรวจจับความผิดปกติ</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> หัวข้อ 4 \"Diagnosis in AI\" หน้า 50 — \"Diagnosability, a key concept, refers to the ability of the system to provide an unambiguous diagnosis. This is particularly crucial during system design, where a balance must be struck between reducing sensor costs and increasing the ability to detect faulty behaviors\"</p>\n<p><strong>เหตุผล:</strong> นี่เป็นแนวคิดที่ค่อนข้างเป็นนามธรรมแบบวิศวกรรมที่ฝังอยู่ในย่อหน้าสั้นๆ อ่านผิดได้ง่ายว่าเกี่ยวกับสิ่งที่คุ้นเคยกว่า (เช่น ความเร็วในการวินิจฉัยหรือสิทธิทางกฎหมาย) แทนที่จะเป็นความหมายที่แม่นยำจริงๆ — การแลกเปลี่ยนที่เจาะจงคือเรื่องวิศวกรรม: เซนเซอร์ที่น้อยลง/ถูกลงประหยัดเงินได้ แต่อาจลดความสามารถของระบบในการชี้จุดผิดปกติได้ชัดเจน ดังนั้นผู้ออกแบบระบบต้องสร้างสมดุลระหว่างเป้าหมายที่แข่งขันกันสองอย่างนี้อย่างจงใจ ไม่ใช่แค่เลือกทางที่ถูกกว่าโดยอัตโนมัติ<br><b>คำตอบ: A ✓</b></p>"}];
+
+let cur=0;
+const answered=new Array(QS.length).fill(null);
+const chosen=new Array(QS.length).fill(null);
+const expLang=new Array(QS.length).fill("en");
+
+function updateHeader(){
+  const done=answered.filter(a=>a!==null).length;
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  document.getElementById('h-done').textContent=done;
+  document.getElementById('h-corr').textContent=corr;
+  document.getElementById('h-wrong').textContent=done-corr;
+  document.getElementById('prog-fill').style.width=(done/QS.length*100)+'%';
+  document.getElementById('prog-val').textContent=done+'/'+QS.length;
+}
+function renderNav(){
+  document.getElementById('qnav').innerHTML=QS.map((q,i)=>{
+    let cls='qdot';
+    if(i===cur)cls+=' cur';
+    else if(answered[i]!==null)cls+=answered[i]===QS[i].ans?' ok':' ng';
+    return `<button class="${cls}" onclick="go(${i})" title="Q${q.n} (${q.diff})">Q${q.n}</button>`;
+  }).join('');
+}
+function renderQ(){
+  const q=QS[cur];
+  const ltrs=['A','B','C','D'];
+  const isAns=answered[cur]!==null;
+  const lang=expLang[cur];
+  let optsH=q.opts.map((o,i)=>{
+    let cls='opt';
+    if(isAns){if(i===q.ans)cls+=' show-correct';if(i===chosen[cur]&&chosen[cur]!==q.ans)cls+=' wrong';if(i===chosen[cur]&&chosen[cur]===q.ans)cls+=' correct';}
+    return `<button class="${cls}" ${isAns?'disabled':''} onclick="pick(${i})"><span class="ltr">${ltrs[i]}.</span><span>${o}</span></button>`;
+  }).join('');
+  const expShow=isAns?' show':'';
+  const enA=lang==='en'?' active':'';
+  const thA=lang==='th'?' active':'';
+  document.getElementById('qarea').innerHTML=`
+<div class="qcard">
+  <div class="qmeta">
+    <span class="qnum">Q${q.n} / ${QS.length}</span>
+    <span class="qdiff ${q.diff}">${({easy:'Easy',medium:'Medium',hard:'Hard'})[q.diff]}</span>
+  </div>
+  <div class="qen">${q.en}</div>
+  <div class="qth">${q.th}</div>
+  <div class="opts">${optsH}</div>
+  <div class="expbox${expShow}">
+    <div class="exphdr">
+      Explanation / เฉลยละเอียด
+      <button class="elang${enA}" onclick="setLang(${cur},'en')">EN</button>
+      <button class="elang${thA}" onclick="setLang(${cur},'th')">TH ภาษาไทย</button>
+    </div>
+    <div class="expbody">
+      <div class="exp-en${lang==='en'?' on':''}">${q.exp_en}</div>
+      <div class="exp-th${lang==='th'?' on':''}">${q.exp_th}</div>
+    </div>
+  </div>
+</div>`;
+  document.getElementById('nav-lbl').textContent=`${cur+1} / ${QS.length}`;
+  document.getElementById('btn-prev').disabled=(cur===0);
+  const btnNext=document.getElementById('btn-next');
+  if(cur===QS.length-1){btnNext.textContent='ดูผลรวม →';btnNext.onclick=showResult;}
+  else{btnNext.textContent='Next →';btnNext.onclick=()=>go(cur+1);}
+}
+function setLang(i,l){expLang[i]=l;renderQ();}
+function pick(i){
+  if(answered[cur]!==null)return;
+  chosen[cur]=i;answered[cur]=i;
+  renderNav();renderQ();updateHeader();
+}
+function go(i){if(i<0||i>=QS.length)return;cur=i;renderAll();}
+function renderAll(){renderNav();renderQ();updateHeader();}
+
+function showResult(){
+  document.getElementById('quiz-view').classList.add('hidden');
+  const rv=document.getElementById('result-view');rv.classList.remove('hidden');
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  const done=answered.filter(a=>a!==null).length;
+  const pct=Math.round(corr/QS.length*100);
+  const msg=pct>=80?'เยี่ยมมาก! 🎉':pct>=60?'ดีมาก ทบทวนข้อที่ผิดด้วยนะ 👍':'ลองทบทวนแล้วทำใหม่อีกรอบ 📚';
+  const DIFFS=['easy','medium','hard'];
+  const DLABEL={easy:'Easy',medium:'Medium',hard:'Hard'};
+  let topicRows=DIFFS.map(d=>{
+    const ti=QS.map((_,i)=>i).filter(i=>QS[i].diff===d);
+    const tc=ti.filter(i=>answered[i]===QS[i].ans).length;
+    const pt=Math.round(tc/ti.length*100);
+    return `<div class="trow"><div class="tname">${DLABEL[d]}</div><div class="tbar"><div class="tbfill" style="width:${pt}%"></div></div><div class="tpct">${tc}/${ti.length}</div></div>`;
+  }).join('');
+  rv.innerHTML=`
+<div class="big">${corr}<span class="total">/${QS.length}</span></div>
+<div class="msg">${msg}</div>
+<div class="rgrid">
+  <div class="rstat"><div class="n" style="color:var(--green)">${corr}</div><div class="l">ถูก</div></div>
+  <div class="rstat"><div class="n" style="color:var(--red)">${done-corr}</div><div class="l">ผิด</div></div>
+  <div class="rstat"><div class="n">${pct}%</div><div class="l">คะแนน</div></div>
+</div>
+<div class="tbreak"><h3>By Difficulty</h3>${topicRows}</div>
+<button class="btn pri" onclick="restart()" style="padding:12px 32px;font-size:15px;margin-bottom:10px">ทำใหม่</button><br>
+<button class="btn" onclick="reviewWrong()" style="font-size:13px">ทบทวนข้อที่ผิด</button>`;
+}
+function restart(){
+  answered.fill(null);chosen.fill(null);expLang.fill("en");
+  cur=0;
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+function reviewWrong(){
+  const wrong=QS.map((_,i)=>i).filter(i=>answered[i]!==null&&answered[i]!==QS[i].ans);
+  if(!wrong.length){alert('ไม่มีข้อผิด! 🎉');return;}
+  cur=wrong[0];
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>

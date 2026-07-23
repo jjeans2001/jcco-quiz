@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GYS Open-Book Practice — UC Histology AI (Set 2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ee;--card:#ffffff;--card2:#eeeae2;--border:#ddd8cc;
+  --text:#1a1916;--muted:#6e6a5e;
+  --green:#1e7a47;--green-bg:#e3f5ec;
+  --red:#c0392b;--red-bg:#fdecea;
+  --blue:#1a4f8a;--blue-bg:#e6eff9;
+  --amber:#9a5500;--amber-bg:#fdf1dc;
+  --gold:#9a7700;--gold-bg:#fdf8e1;
+  --teal:#0a6e54;--teal-bg:#e0f5ed;
+  --gys-blue:#1e3a8a;--gys-gold:#c9962f;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+.topbar{position:sticky;top:0;z-index:200;background:#12204d;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.logo-gys{display:flex;gap:2px;align-items:flex-end}
+.logo-gys .g-letter,.logo-gys .y-letter,.logo-gys .s-letter{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700}
+.logo-gys .g-letter{color:var(--gys-gold)}
+.logo-gys .y-letter{color:#fff}
+.logo-gys .s-letter{color:var(--gys-gold)}
+.logo-text{color:#fff;font-size:13px;font-weight:500;line-height:1.3;opacity:.9}
+.logo-sub{font-size:10px;opacity:.6;color:#fff}
+.top-stats{display:flex;gap:20px;flex-shrink:0}
+.tstat{text-align:center}
+.tstat .n{font-size:17px;font-weight:700;font-family:'DM Mono',monospace}
+.tstat .l{font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.06em;margin-top:1px;color:#fff}
+.tstat .n.g{color:#4ed68a}.tstat .n.r{color:#f07070}.tstat .n.w{color:#fff}
+.databtn{padding:6px 14px;background:var(--gys-gold);color:#12204d;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Sarabun,sans-serif}
+
+.wrap{max-width:840px;margin:0 auto;padding:24px 18px 80px}
+
+.info-banner{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.7;color:var(--muted)}
+.info-banner b{color:var(--text)}
+
+.difflegend{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.dchip{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--card)}
+.dchip .dot{width:8px;height:8px;border-radius:50%}
+.dchip.easy .dot{background:var(--green)}.dchip.medium .dot{background:var(--amber)}.dchip.hard .dot{background:var(--red)}
+
+.datamodal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:9999;overflow-y:auto;padding:20px}
+.datamodal-inner{max-width:820px;margin:0 auto;background:#fff;border-radius:14px;padding:28px;position:relative}
+.datamodal-close{position:absolute;top:14px;right:18px;font-size:22px;background:none;border:none;cursor:pointer;color:#666}
+.datamodal h2{font-size:17px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.datamodal .sub{font-size:12px;color:#888;margin-bottom:18px}
+.datamodal h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:18px 0 8px}
+.dtable{border-collapse:collapse;font-size:12.5px;width:100%;margin-bottom:14px}
+.dtable th{background:#f5f3ee;font-weight:700;padding:6px 10px;border:1px solid #ddd;text-align:left}
+.dtable td{padding:5px 10px;border:1px solid #ddd}
+.dtable tr:nth-child(even) td{background:#fafaf8}
+
+.prog-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:16px}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.prog-lbl{font-size:12px;color:var(--muted)}.prog-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;margin-left:auto;color:var(--text)}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gys-blue),#5d8ad8);border-radius:3px;transition:width .5s ease}
+
+.qnav-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.qdot{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);font-size:11px;font-family:'DM Mono',monospace;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.qdot:hover{background:var(--card2)}.qdot.cur{background:var(--text);color:#fff;border-color:var(--text)}
+.qdot.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.qdot.ng{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:0 2px 8px rgba(0,0,0,.04);animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.qmeta{display:flex;align-items:center;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace}
+.qdiff{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600}
+.qdiff.easy{background:var(--green-bg);color:var(--green)}
+.qdiff.medium{background:var(--amber-bg);color:var(--amber)}
+.qdiff.hard{background:var(--red-bg);color:var(--red)}
+
+.context-block{background:#f8f6f2;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.8}
+.context-block .ctx-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+
+.qen{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:5px}
+.qth{font-size:14px;line-height:1.85;color:var(--muted);margin-bottom:18px;padding-left:12px;border-left:2px solid var(--border)}
+
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;color:var(--text);background:var(--card);text-align:left;width:100%;transition:all .14s;line-height:1.55;font-family:'Sarabun',sans-serif}
+.opt:hover:not(:disabled){background:var(--card2);border-color:#bbb4a8}
+.opt .ltr{font-weight:700;font-family:'DM Mono',monospace;font-size:13px;min-width:22px;color:var(--muted);margin-top:1px;flex-shrink:0}
+.opt.correct{background:var(--green-bg);border-color:var(--green)}.opt.correct .ltr{color:var(--green)}
+.opt.wrong{background:var(--red-bg);border-color:var(--red)}.opt.wrong .ltr{color:var(--red)}
+.opt.show-correct{background:var(--green-bg);border-color:var(--green)}.opt.show-correct .ltr{color:var(--green)}
+.opt:disabled{cursor:default}
+
+.expbox{margin-top:14px;border:1px solid var(--border);border-radius:9px;overflow:hidden;display:none}
+.expbox.show{display:block}
+.exphdr{padding:9px 16px;background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.elang{padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:600;border:none;background:none;color:var(--muted);font-family:'Sarabun',sans-serif;transition:all .12s}
+.elang.active{background:var(--text);color:#fff}
+.expbody{padding:16px;font-size:13.5px;line-height:1.85;color:var(--text)}
+.exp-en,.exp-th{display:none}.exp-en.on,.exp-th.on{display:block}
+.ans-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:16px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);font-weight:700;font-size:13px;margin-bottom:10px}
+
+.navrow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:14px}
+.btn{padding:10px 22px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);font-size:14px;font-family:'Sarabun',sans-serif;color:var(--text);cursor:pointer;transition:all .14s;font-weight:500}
+.btn:hover{background:var(--card2)}.btn:disabled{opacity:.35;cursor:default}
+.btn.pri{background:var(--gys-blue);color:#fff;border-color:var(--gys-blue)}.btn.pri:hover{background:#152c68}
+
+.result{text-align:center;padding:50px 20px}
+.result .big{font-size:68px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.result .total{font-size:20px;color:var(--muted);font-family:'DM Mono',monospace}
+.result .msg{font-size:16px;margin:14px 0 28px;color:var(--muted)}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto 24px}
+.rstat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.rstat .n{font-size:26px;font-weight:700;font-family:'DM Mono',monospace}.rstat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.tbreak{max-width:460px;margin:0 auto 24px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left}
+.tbreak h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+.trow{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13px}
+.tname{min-width:90px;font-size:12px}.tbar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.tbfill{height:100%;border-radius:3px;background:var(--green)}.tpct{min-width:36px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.hidden{display:none!important}
+strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-gys">
+      <span class="g-letter">G</span><span class="y-letter">Y</span><span class="s-letter">S</span>
+    </div>
+    <div>
+      <div class="logo-text">GYS Open-Book Practice — Set 2</div>
+      <div class="logo-sub">AI-Enabled Histological Prediction in Ulcerative Colitis (Iacucci et al., 2023)</div>
+    </div>
+  </div>
+  <div class="top-stats">
+    <div class="tstat"><div class="n w" id="h-done">0</div><div class="l">Done</div></div>
+    <div class="tstat"><div class="n g" id="h-corr">0</div><div class="l">Correct</div></div>
+    <div class="tstat"><div class="n r" id="h-wrong">0</div><div class="l">Wrong</div></div>
+    <button class="databtn" onclick="document.getElementById('dp').style.display='block'">📋 REFERENCE DATA</button>
+  </div>
+</div>
+
+<div id="dp" class="datamodal">
+<div class="datamodal-inner">
+<button class="datamodal-close" onclick="document.getElementById('dp').style.display='none'">✕</button>
+<h2>📋 Reference Data — Open-Book Support</h2>
+<p class="sub">สรุปข้อมูลสำคัญจากบทความ เพื่อจำลองบรรยากาศ open-book (ชุดที่ 2 — ไม่ซ้ำกับข้อมูลในชุดแรก)</p>
+
+<h3>Paper Info</h3>
+<table class="dtable">
+<tr><th>Title</th><td>Artificial Intelligence Enabled Histological Prediction of Remission or Activity and Clinical Outcomes in Ulcerative Colitis</td></tr>
+<tr><th>Authors</th><td>Iacucci M, Parigi TL, Del Amor R, et al.</td></tr>
+<tr><th>Source</th><td>Gastroenterology. 2023;164(7):1180-1188.</td></tr>
+</table>
+
+<h3>Study Design Quick Facts</h3>
+<table class="dtable">
+<tr><th>Item</th><th>Value</th></tr>
+<tr><td>Centers recruiting patients (original cohort)</td><td>11 centers (data usable from 10)</td></tr>
+<tr><td>Recruitment period</td><td>Sept 2016 – Nov 2019</td></tr>
+<tr><td>Expert IBD pathologists (main assessment)</td><td>6</td></tr>
+<tr><td>Pathologists who annotated training data</td><td>3 (Villanacci, Mandelli, Bazarova)</td></tr>
+<tr><td>External validation sites</td><td>Birmingham (UK), Brescia (Italy)</td></tr>
+<tr><td>WSI patch processing</td><td>512×512×3 px, 20× resolution, 50% overlap</td></tr>
+<tr><td>CNN backbone → refinement</td><td>VGG16 → Squeeze-and-Excitation ("SeaNet") → attention-constrained module → MIL</td></tr>
+<tr><td>AUROC comparison test</td><td>DeLong test</td></tr>
+<tr><td>Endoscopic remission cutoffs</td><td>UCEIS ≤1 or PICaSSO ≤3</td></tr>
+</table>
+
+<h3>Table 2 — Full CAD Performance (for cross-checking)</h3>
+<table class="dtable">
+<tr><th>Metric</th><th>PHRI Calib. (n=42)</th><th>PHRI Test (n=375)</th><th>RHI Test (n=374)</th><th>NHI Test (n=374)</th><th>PHRI External (n=154)</th></tr>
+<tr><td>Sensitivity</td><td>0.76</td><td>0.89</td><td>0.94</td><td>0.89</td><td>0.92</td></tr>
+<tr><td>Specificity</td><td>0.96</td><td>0.85</td><td>0.76</td><td>0.79</td><td>0.81</td></tr>
+<tr><td>PPV</td><td>0.93</td><td>0.75</td><td>0.53</td><td>0.60</td><td>0.95</td></tr>
+<tr><td>NPV</td><td>0.86</td><td>0.94</td><td>0.98</td><td>0.95</td><td>0.71</td></tr>
+<tr><td>AUROC</td><td>0.86</td><td>0.87</td><td>0.85</td><td>0.86</td><td>0.90</td></tr>
+</table>
+
+<h3>Hazard Ratios (flare prediction)</h3>
+<table class="dtable">
+<tr><th>Classification</th><th>Original cohort HR</th><th>External validation HR</th></tr>
+<tr><td>Pathologists' PHRI</td><td>3.56</td><td>2.591</td></tr>
+<tr><td>Pathologists' RHI</td><td>4.28</td><td>—</td></tr>
+<tr><td>Pathologists' NHI</td><td>3.55</td><td>—</td></tr>
+<tr><td>AI's PHRI</td><td>4.64</td><td>2.241</td></tr>
+</table>
+</div>
+</div>
+
+<div class="wrap">
+  <div class="info-banner">
+    แบบฝึกหัดนี้คือ <b>ชุดที่ 2</b> ของ GYS Open-Book Practice สำหรับบทความ UC Histology AI (Iacucci et al.) — <b>ทุกข้อเป็นข้อใหม่ ไม่ซ้ำกับชุดแรก</b> และเรียงลำดับจาก<b>ง่ายไปยาก</b>ตามที่ขอไว้ ข้อ 1-4 เน้นค้นหาข้อเท็จจริงตรงๆ ข้อ 5-9 เน้นอ่านตาราง/เชื่อมโยงข้อมูล ข้อ 10-15 เน้นสังเคราะห์และเปรียบเทียบข้อมูลข้ามส่วนของบทความ กดปุ่ม <b>📋 REFERENCE DATA</b> เพื่อดูข้อมูลอ้างอิงระหว่างทำ
+  </div>
+  <div class="difflegend">
+    <div class="dchip easy"><span class="dot"></span>Easy (Q1-4) — ค้นหาข้อเท็จจริงตรงๆ</div>
+    <div class="dchip medium"><span class="dot"></span>Medium (Q5-9) — อ่านตาราง/เชื่อมโยงข้อมูล</div>
+    <div class="dchip hard"><span class="dot"></span>Hard (Q10-15) — สังเคราะห์และเปรียบเทียบ</div>
+  </div>
+  <div id="quiz-view">
+    <div class="prog-card">
+      <div class="prog-row"><span class="prog-lbl">Progress — UC Histology AI Open-Book · Set 2 · 15 ข้อ</span><span class="prog-val" id="prog-val">0/15</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="qnav-wrap" id="qnav"></div>
+    <div id="qarea"></div>
+    <div class="navrow">
+      <button class="btn" id="btn-prev" onclick="go(cur-1)">← Prev</button>
+      <span id="nav-lbl" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn pri" id="btn-next">Next →</button>
+    </div>
+  </div>
+  <div id="result-view" class="result hidden"></div>
+</div>
+
+<script>
+const QS = [{"n": 1, "diff": "easy", "en": "For the ORIGINAL (non-external) cohort, patients were recruited from how many international centers, and how many of those centers actually contributed usable digitalized biopsy data to the study?", "th": "สำหรับกลุ่มตัวอย่างชุดแรก (ไม่ใช่ external validation) ผู้ป่วยถูกคัดเลือกมาจากศูนย์นานาชาติกี่แห่ง และมีกี่แห่งที่ให้ข้อมูลชิ้นเนื้อดิจิทัลที่ใช้งานได้จริง?", "opts": ["11 centers recruited, but only 10 contributed usable data", "10 centers recruited, and all 11 contributed data", "11 centers recruited, and all 11 contributed data", "6 centers recruited, and 5 contributed data"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 11 centers recruited, but only 10 contributed usable data</div>\n<p><strong>Where to find it:</strong> Methods, \"Patients,\" p. 1181 — \"patients were recruited from 11 international centers between September 2016 and November 2019. Digitalized biopsies were not available for 1 center, so the study was carried out on data from 10 centers.\"</p>\n<p><strong>Reasoning:</strong> This tests careful reading — 11 is the number of centers involved in recruitment, but the actual dataset analyzed comes from only 10 centers because one center's digitalized biopsies were missing.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. คัดเลือกจาก 11 ศูนย์ แต่ใช้ข้อมูลได้จริงแค่ 10 ศูนย์</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"Patients\" หน้า 1181 — \"patients were recruited from 11 international centers...Digitalized biopsies were not available for 1 center, so the study was carried out on data from 10 centers\"</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบการอ่านอย่างละเอียด — 11 คือจำนวนศูนย์ที่เข้าร่วมคัดเลือกผู้ป่วย แต่ข้อมูลที่นำมาวิเคราะห์จริงมาจากเพียง 10 ศูนย์ เพราะศูนย์หนึ่งไม่มีข้อมูลชิ้นเนื้อดิจิทัล<br><b>คำตอบ: A ✓</b></p>"}, {"n": 2, "diff": "easy", "en": "The external validation cohort was collected from which two cities?", "th": "กลุ่มตัวอย่าง external validation ถูกเก็บรวบรวมมาจาก 2 เมืองใด?", "opts": ["Birmingham (UK) and Brescia (Italy)", "London (UK) and Milan (Italy)", "Nottingham (UK) and Rome (Italy)", "Leuven (Belgium) and Milan (Italy)"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Birmingham (UK) and Brescia (Italy)</div>\n<p><strong>Where to find it:</strong> Methods, \"Patients,\" p. 1181 — \"we collected a second cohort of patients from 2 centers, Birmingham in the United Kingdom and Brescia in Italy.\"</p>\n<p><strong>Reasoning:</strong> A direct factual lookup. Note that Birmingham is also one of the 11 original-cohort centers, but here it's specifically named as one of the two sites for the separate external validation cohort.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Birmingham (สหราชอาณาจักร) และ Brescia (อิตาลี)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"Patients\" หน้า 1181 — \"we collected a second cohort of patients from 2 centers, Birmingham in the United Kingdom and Brescia in Italy\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรง สังเกตว่า Birmingham เป็นหนึ่งใน 11 ศูนย์ของกลุ่มตัวอย่างชุดแรกด้วย แต่ในที่นี้ถูกระบุเฉพาะเจาะจงว่าเป็นหนึ่งในสองสถานที่ของกลุ่ม external validation ที่แยกต่างหาก<br><b>คำตอบ: A ✓</b></p>"}, {"n": 3, "diff": "easy", "en": "According to the Methods, how many expert IBD pathologists assessed the biopsies in the original cohort (blinded to clinical and endoscopic information)?", "th": "ตาม Methods มีพยาธิแพทย์ผู้เชี่ยวชาญด้าน IBD กี่ท่านที่ประเมินชิ้นเนื้อในกลุ่มตัวอย่างชุดแรก (โดยไม่ทราบข้อมูลทางคลินิกและกล้องส่องตรวจ)?", "opts": ["3", "6", "8", "11"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. 6</div>\n<p><strong>Where to find it:</strong> Methods, \"Digital Pathology,\" p. 1181 — \"assessed by 1 of the 6 expert IBD pathologists (Gert De Hertogh, Xianyong Gui, Elin S. Røyset, Michael Vieth, Vincenzo Villanacci, Davide Zardo) blinded to clinical and endoscopic information.\"</p>\n<p><strong>Reasoning:</strong> This is a direct count. Note the distractor \"3\" refers to a different group — the 3 expert gastrointestinal pathologists (Villanacci, Mandelli, Bazarova) who specifically annotated the training subset with neutrophil circles, a separate task from the main assessment.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. 6 ท่าน</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"Digital Pathology\" หน้า 1181 — \"assessed by 1 of the 6 expert IBD pathologists...blinded to clinical and endoscopic information\"</p>\n<p><strong>เหตุผล:</strong> เป็นการนับจำนวนโดยตรง สังเกตว่าตัวเลือก \"3\" หมายถึงกลุ่มคนละกลุ่ม — คือพยาธิแพทย์ทางเดินอาหารผู้เชี่ยวชาญ 3 ท่าน (Villanacci, Mandelli, Bazarova) ที่ทำหน้าที่กำกับป้ายวงกลม neutrophils ในชุดข้อมูลฝึกฝนโดยเฉพาะ ซึ่งเป็นงานคนละอย่างกับการประเมินหลัก<br><b>คำตอบ: B ✓</b></p>"}, {"n": 4, "diff": "easy", "en": "Endoscopic remission was defined using which cutoffs for UCEIS and PICaSSO, respectively?", "th": "ภาวะสงบทางกล้องส่องตรวจ (endoscopic remission) ถูกนิยามด้วยเกณฑ์ตัดสินใดสำหรับ UCEIS และ PICaSSO ตามลำดับ?", "opts": ["UCEIS ≤1 or PICaSSO ≤3", "UCEIS ≤3 or PICaSSO ≤1", "UCEIS ≤0 or PICaSSO ≤0", "UCEIS ≤2 or PICaSSO ≤5"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. UCEIS ≤1 or PICaSSO ≤3</div>\n<p><strong>Where to find it:</strong> Methods, \"Endoscopic Assessment,\" p. 1181 — \"Endoscopic remission was defined as UCEIS ≤1 or PICaSSO ≤3.\"</p>\n<p><strong>Reasoning:</strong> A direct definitional lookup. This is a good one to double-check carefully since the two numbers (1 and 3) are easy to swap between the two scoring systems if reading quickly.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. UCEIS ≤1 หรือ PICaSSO ≤3</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"Endoscopic Assessment\" หน้า 1181 — \"Endoscopic remission was defined as UCEIS ≤1 or PICaSSO ≤3\"</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหานิยามโดยตรง ข้อนี้ควรตรวจสอบให้ดีเพราะตัวเลขทั้งสอง (1 กับ 3) สลับกันได้ง่ายระหว่างสองระบบคะแนนหากอ่านเร็วเกินไป<br><b>คำตอบ: A ✓</b></p>"}, {"n": 5, "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Table 1 — Demographics Characteristics</div>The table reports patient demographics for both the Original cohort and Validation cohort, including the percentage of female patients.</div><br>\nAccording to Table 1, what percentage of patients were female in the VALIDATION cohort, and how does this compare to the Original cohort?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Table 1 — Demographics Characteristics</div>ตารางรายงานข้อมูลประชากรผู้ป่วยทั้งกลุ่ม Original cohort และ Validation cohort รวมถึงเปอร์เซ็นต์ผู้ป่วยเพศหญิง</div><br>\nจาก Table 1 ผู้ป่วยเพศหญิงในกลุ่ม VALIDATION cohort คิดเป็นกี่เปอร์เซ็นต์ และเทียบกับกลุ่ม Original cohort อย่างไร?", "opts": ["43% in validation vs 40.7% in original — slightly higher", "40.7% in validation vs 43% in original — slightly lower", "Exactly 40.7% in both cohorts — identical", "25% in validation vs 43% in original — much lower"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 43% in validation vs 40.7% in original — slightly higher</div>\n<p><strong>Where to find it:</strong> Table 1, \"Female, n (%)\" row, p. 1184 — Original cohort: 111 (40.7); Validation cohort: 25 (43).</p>\n<p><strong>Reasoning:</strong> This tests careful cross-column table reading. The raw counts (111 vs 25) look very different because the cohort sizes differ dramatically (273 vs 58 patients), but converting to percentages shows the female proportion was actually very similar — 43% is only slightly higher than 40.7%, not \"much lower\" as option D incorrectly suggests using the raw count of 25.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. 43% ในกลุ่ม validation เทียบกับ 40.7% ในกลุ่มเดิม — สูงกว่าเล็กน้อย</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Table 1 แถว \"Female, n (%)\" หน้า 1184 — Original cohort: 111 (40.7); Validation cohort: 25 (43)</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบการอ่านตารางข้ามคอลัมน์อย่างละเอียด ตัวเลขดิบ (111 เทียบกับ 25) ดูต่างกันมากเพราะขนาดกลุ่มตัวอย่างต่างกันมาก (273 เทียบกับ 58 คน) แต่เมื่อแปลงเป็นเปอร์เซ็นต์แล้วสัดส่วนเพศหญิงกลับใกล้เคียงกันมาก — 43% สูงกว่า 40.7% เพียงเล็กน้อยเท่านั้น ไม่ใช่ \"ต่ำกว่ามาก\" ตามที่ตัวเลือก D ชวนให้เข้าใจผิดโดยใช้ตัวเลขดิบ 25<br><b>คำตอบ: A ✓</b></p>"}, {"n": 6, "diff": "medium", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Table 2 — CAD System Diagnostic Performance</div>The table reports Sensitivity, Specificity, PPV, NPV, F1 Score, Accuracy, and AUROC across 5 different columns: PHRI Calibration, PHRI Test, RHI Test, NHI Test, and PHRI External validation.</div><br>\nIn the NHI Test set (n=374), what PPV (positive predictive value) did the CAD system achieve?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Table 2 — CAD System Diagnostic Performance</div>ตารางรายงานค่า Sensitivity, Specificity, PPV, NPV, F1 Score, Accuracy, และ AUROC ใน 5 คอลัมน์: PHRI Calibration, PHRI Test, RHI Test, NHI Test, และ PHRI External validation</div><br>\nในชุด NHI Test (n=374) ระบบ CAD ได้ค่า PPV (positive predictive value) เท่าใด?", "opts": ["53%", "60%", "75%", "95%"], "ans": 1, "exp_en": "<div class=\"ans-badge\">✓ B. 60%</div>\n<p><strong>Where to find it:</strong> Table 2, \"PPV\" row, \"NHI, Test (n=374)\" column, p. 1184 — PPV 0.60 (0.54–0.65).</p>\n<p><strong>Reasoning — reading the correct column is the key skill:</strong> Option A (53%) is actually the RHI test column's PPV, not NHI's. Option C (75%) is the PHRI test column's PPV. Option D (95%) is the PHRI external validation column's PPV. Only option B correctly matches the NHI/Test row.</p>", "exp_th": "<div class=\"ans-badge\">✓ B. 60%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Table 2 แถว \"PPV\" คอลัมน์ \"NHI, Test (n=374)\" หน้า 1184 — PPV 0.60 (0.54–0.65)</p>\n<p><strong>เหตุผล — ทักษะสำคัญคือการอ่านให้ถูกคอลัมน์:</strong> ตัวเลือก A (53%) แท้จริงเป็น PPV ของคอลัมน์ RHI test ไม่ใช่ NHI ตัวเลือก C (75%) เป็น PPV ของคอลัมน์ PHRI test ตัวเลือก D (95%) เป็น PPV ของคอลัมน์ PHRI external validation มีเพียงตัวเลือก B เท่านั้นที่ตรงกับแถว NHI/Test<br><b>คำตอบ: B ✓</b></p>"}, {"n": 7, "diff": "medium", "en": "Comparing the AUROC values for PHRI, RHI, and NHI on their respective test sets, the paper reports P-values of .15 (PHRI vs RHI) and .76 (PHRI vs NHI) using the DeLong test. What does this statistically indicate?", "th": "เมื่อเปรียบเทียบค่า AUROC ของ PHRI, RHI, และ NHI ในชุด test ของแต่ละดัชนี บทความรายงานค่า P-value เท่ากับ .15 (PHRI เทียบกับ RHI) และ .76 (PHRI เทียบกับ NHI) โดยใช้ DeLong test ผลนี้บ่งบอกอะไรทางสถิติ?", "opts": ["The differences in AUROC between the indices were NOT statistically significant — performance was comparable regardless of which index was used", "RHI performed significantly better than PHRI", "NHI performed significantly worse than PHRI", "The DeLong test could not be computed for this data"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. The differences were NOT statistically significant — performance was comparable across indices</div>\n<p><strong>Where to find it:</strong> Results, \"CAD System Detection...,\" p. 1183 — \"Differences between the AUROCs were not statistically significant (PHRI vs RHI P = .15; PHRI vs NHI P = .76).\"</p>\n<p><strong>Reasoning:</strong> A P-value above the conventional 0.05 threshold means there is not enough statistical evidence to say the AUROCs genuinely differ — in plain terms, the CAD system performed comparably well no matter which of the three histologic indices was used to judge it, reinforcing the claim that the tool is valid \"regardless of the score\" (as stated later in the Discussion).</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ความแตกต่างไม่มีนัยสำคัญทางสถิติ — ประสิทธิภาพใกล้เคียงกันไม่ว่าจะใช้ดัชนีใด</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Results, \"CAD System Detection...\" หน้า 1183 — \"Differences between the AUROCs were not statistically significant (PHRI vs RHI P = .15; PHRI vs NHI P = .76)\"</p>\n<p><strong>เหตุผล:</strong> ค่า P-value ที่สูงกว่าเกณฑ์มาตรฐาน 0.05 หมายความว่าไม่มีหลักฐานทางสถิติเพียงพอที่จะบอกว่าค่า AUROC แตกต่างกันจริง พูดง่ายๆ คือระบบ CAD ทำงานได้ดีใกล้เคียงกันไม่ว่าจะใช้ดัชนีทางจุลพยาธิวิทยาใดในสามแบบมาตัดสิน ซึ่งสนับสนุนข้อสรุปที่กล่าวไว้ภายหลังใน Discussion ว่าเครื่องมือนี้ใช้ได้ผลดี \"ไม่ว่าจะใช้คะแนนใด\"<br><b>คำตอบ: A ✓</b></p>"}, {"n": 8, "diff": "medium", "en": "What neural network module, added AFTER the VGG16 feature-extraction step, was used to refine the low-dimensional features in the CAD system?", "th": "โมดูล neural network ใดที่ถูกเพิ่มเข้ามา<strong>หลังจาก</strong>ขั้นตอนการสกัดคุณลักษณะด้วย VGG16 เพื่อปรับปรุงคุณลักษณะมิติต่ำในระบบ CAD?", "opts": ["A Squeeze and Excitation network (labeled \"SeaNet\" in Figure 1)", "A Recurrent Neural Network (RNN)", "A Generative Adversarial Network (GAN)", "A Random Forest classifier"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. A Squeeze and Excitation network (labeled \"SeaNet\" in Figure 1)</div>\n<p><strong>Where to find it:</strong> Methods, \"CAD System,\" p. 1182 — \"A separate module, based on a Squeeze and Excitation network, refined the low-dimensional features.\" Also visible in Figure 1's \"Feature refinement with SeaNet\" box.</p>\n<p><strong>Reasoning:</strong> The processing pipeline goes: VGG16 (feature extraction) → Squeeze and Excitation network / SeaNet (feature refinement) → attention-constrained module → multiple instance learning (final aggregation). RNN, GAN, and Random Forest are all real ML architectures but none are used at this specific refinement step in this paper.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Squeeze and Excitation network (ระบุในภาพว่า \"SeaNet\")</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"CAD System\" หน้า 1182 — \"A separate module, based on a Squeeze and Excitation network, refined the low-dimensional features\" และปรากฏใน Figure 1 ในกล่อง \"Feature refinement with SeaNet\"</p>\n<p><strong>เหตุผล:</strong> ลำดับการประมวลผลคือ: VGG16 (สกัดคุณลักษณะ) → Squeeze and Excitation network / SeaNet (ปรับปรุงคุณลักษณะ) → โมดูล attention-constrained → multiple instance learning (รวมผลลัพธ์สุดท้าย) RNN, GAN, และ Random Forest ล้วนเป็นสถาปัตยกรรม ML จริง แต่ไม่มีตัวใดถูกใช้ในขั้นตอนปรับปรุงคุณลักษณะนี้ในบทความนี้<br><b>คำตอบ: A ✓</b></p>"}, {"n": 9, "diff": "medium", "en": "How were the whole slide images (WSIs) processed before being fed into the CNN — what patch size, resolution, and overlap were used?", "th": "ภาพชิ้นเนื้อดิจิทัลทั้งแผ่น (WSIs) ถูกประมวลผลอย่างไรก่อนป้อนเข้า CNN — ใช้ขนาด patch, ความละเอียด, และการซ้อนทับเท่าใด?", "opts": ["512×512×3 patches, down-sampled to 20× resolution, with 50% overlap", "256×256×3 patches, down-sampled to 40× resolution, with 25% overlap", "1024×1024×3 patches, no down-sampling, with 10% overlap", "128×128×3 patches, down-sampled to 10× resolution, with 75% overlap"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. 512×512×3 patches, down-sampled to 20× resolution, with 50% overlap</div>\n<p><strong>Where to find it:</strong> Methods, \"CAD System,\" p. 1182 — \"Digitized biopsies (whole slide images [WSIs]) were down-sampled to 20× resolution, divided into 512 × 512 × 3 areas (patches) with a 50% overlap, and patches with less than 20% of tissue were excluded.\" Confirmed again in the Supplementary Material appendix.</p>\n<p><strong>Reasoning:</strong> A direct factual lookup, cross-confirmed in two places in the paper (main Methods and Supplementary Appendix), which is a good sign this is a reliable fact to memorize for open-book reference.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. patch ขนาด 512×512×3 ลดความละเอียดเหลือ 20× และซ้อนทับกัน 50%</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"CAD System\" หน้า 1182 — \"Digitized biopsies...were down-sampled to 20× resolution, divided into 512 × 512 × 3 areas (patches) with a 50% overlap, and patches with less than 20% of tissue were excluded\" และยืนยันซ้ำใน Supplementary Material</p>\n<p><strong>เหตุผล:</strong> เป็นการค้นหาข้อเท็จจริงโดยตรง ซึ่งถูกยืนยันซ้ำสองจุดในบทความ (Methods หลักและภาคผนวก) ถือเป็นสัญญาณที่ดีว่าเป็นข้อเท็จจริงที่น่าเชื่อถือควรจำไว้สำหรับการเปิดหนังสือค้นคว้า<br><b>คำตอบ: A ✓</b></p>"}, {"n": 10, "diff": "hard", "en": "In the PRIMARY (original) cohort, the AI's PHRI hazard ratio (4.64) was numerically HIGHER than the pathologists' PHRI hazard ratio (3.56) for predicting flare-up. Does this same pattern hold true in the EXTERNAL validation cohort?", "th": "ในกลุ่มตัวอย่าง<strong>ชุดแรก</strong> (primary cohort) hazard ratio ของ PHRI ที่ประเมินโดย AI (4.64) มีค่าสูงกว่า hazard ratio ของ PHRI ที่ประเมินโดยพยาธิแพทย์ (3.56) ในการทำนายการกำเริบของโรค รูปแบบนี้ยังคงเป็นจริงในกลุ่ม external validation หรือไม่?", "opts": ["No — in external validation, the pathologists' HR (2.591) was actually slightly HIGHER than the AI's HR (2.241), reversing the primary-cohort pattern", "Yes — the AI's HR remained higher than the pathologists' HR in both cohorts", "Both HRs were exactly identical in the external validation cohort", "The external validation hazard ratios were not reported in the paper"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. No — in external validation, the pathologists' HR (2.591) was slightly HIGHER than the AI's HR (2.241)</div>\n<p><strong>Where to find it:</strong> Results, \"CAD System Prognosis Prediction,\" p. 1184-1185 — \"These results were confirmed in the external validation cohort where the AI-predicted classification of activity/remission resulted in an HR of 2.241 (95% CI, 1.08–4.67) and of 2.591 (95% CI, 1.20–5.29) for the classification according to PHRI by human pathologists.\" Also visible in Supplementary Figure 1.</p>\n<p><strong>Reasoning:</strong> This question requires comparing two different numeric results from two different parts of the paper rather than reading a single stated fact. In the primary cohort, AI (4.64) outperformed pathologists (3.56) numerically. But in external validation, the relationship flips slightly: pathologists (2.591) edge out AI (2.241). This is an important nuance — the paper's overall message is that AI performs \"comparably\" to pathologists, not that AI always wins; a careful open-book reader should notice this reversal rather than over-generalizing from the primary cohort's result alone.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ไม่ — ใน external validation, HR ของพยาธิแพทย์ (2.591) สูงกว่า HR ของ AI (2.241) เล็กน้อย สลับกับกลุ่มแรก</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Results, \"CAD System Prognosis Prediction\" หน้า 1184-1185 — \"These results were confirmed in the external validation cohort where the AI-predicted classification...resulted in an HR of 2.241...and of 2.591...for the classification according to PHRI by human pathologists\" และปรากฏใน Supplementary Figure 1 ด้วย</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ต้องเปรียบเทียบตัวเลขผลลัพธ์สองชุดจากคนละส่วนของบทความ ไม่ใช่แค่อ่านข้อเท็จจริงเดียวที่ระบุตรงๆ ในกลุ่มตัวอย่างชุดแรก AI (4.64) ทำได้ดีกว่าพยาธิแพทย์ (3.56) ในเชิงตัวเลข แต่ใน external validation ความสัมพันธ์กลับสลับเล็กน้อย: พยาธิแพทย์ (2.591) แซงหน้า AI (2.241) เล็กน้อย นี่เป็นความละเอียดอ่อนสำคัญ — ใจความหลักของบทความคือ AI ทำงานได้ \"ใกล้เคียง\" กับพยาธิแพทย์ ไม่ใช่ว่า AI ชนะเสมอไป ผู้อ่านแบบเปิดหนังสือที่ละเอียดรอบคอบควรสังเกตการสลับนี้ แทนที่จะสรุปเกินจริงจากผลของกลุ่มตัวอย่างชุดแรกเพียงอย่างเดียว<br><b>คำตอบ: A ✓</b></p>"}, {"n": 11, "diff": "hard", "en": "The Introduction states that, prior to this study, only two AI models had been developed in the field of UC pathology. What did each of these two prior models focus on detecting?", "th": "บทนำระบุว่า ก่อนงานวิจัยนี้ มีแบบจำลอง AI เพียง 2 แบบเท่านั้นที่ถูกพัฒนาขึ้นในสาขาพยาธิวิทยาของ UC แบบจำลองทั้งสองนี้แต่ละแบบมุ่งเน้นตรวจจับอะไร?", "opts": ["Eosinophils (Vande Casteele et al.) and neutrophils (the authors' own prior work)", "Lymphocytes and macrophages", "Goblet cells and crypt abscesses", "Eosinophils and dysplastic cells"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Eosinophils (Vande Casteele et al.) and neutrophils (the authors' own prior work)</div>\n<p><strong>Where to find it:</strong> Introduction, p. 1181 — \"in the field of UC pathology, only 2 AI models have been developed, the first, by Vande Casteele and colleagues, focused on the detection of eosinophils and their correlation with disease activity; the second, by our group, concentrated on neutrophils as hallmarks of activity.\"</p>\n<p><strong>Reasoning:</strong> This tests whether the reader can locate and correctly pair two specific historical facts embedded in a single dense sentence in the Introduction — a common open-book skill of extracting structured facts from prose. Note that the \"second\" model mentioned is the authors' own earlier work (referenced as citation 11, Gui et al., which developed the PHRI index itself) — the very foundation this new CAD system builds upon.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. Eosinophils (โดย Vande Casteele และคณะ) และ neutrophils (ผลงานก่อนหน้าของทีมผู้เขียนเอง)</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> บทนำ หน้า 1181 — \"in the field of UC pathology, only 2 AI models have been developed, the first, by Vande Casteele and colleagues, focused on the detection of eosinophils...the second, by our group, concentrated on neutrophils as hallmarks of activity\"</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ทดสอบว่าผู้อ่านสามารถหาและจับคู่ข้อเท็จจริงทางประวัติศาสตร์ 2 ข้อที่ฝังอยู่ในประโยคเดียวที่หนาแน่นในบทนำได้หรือไม่ — เป็นทักษะเปิดหนังสือที่พบบ่อยคือการดึงข้อเท็จจริงที่มีโครงสร้างออกจากร้อยแก้ว สังเกตว่าแบบจำลอง \"ที่สอง\" ที่กล่าวถึงคือผลงานก่อนหน้าของทีมผู้เขียนเอง (อ้างอิงหมายเลข 11 ของ Gui และคณะ ซึ่งเป็นผู้พัฒนาดัชนี PHRI ขึ้นมา) ซึ่งเป็นรากฐานที่ระบบ CAD ใหม่นี้ต่อยอดขึ้นมา<br><b>คำตอบ: A ✓</b></p>"}, {"n": 12, "diff": "hard", "en": "Which statistical test did the authors use specifically to compare AUROC values between different diagnostic indices (e.g., PHRI vs. RHI)?", "th": "ผู้เขียนใช้การทดสอบทางสถิติใดโดยเฉพาะเพื่อเปรียบเทียบค่า AUROC ระหว่างดัชนีการวินิจฉัยที่แตกต่างกัน (เช่น PHRI เทียบกับ RHI)?", "opts": ["The DeLong test", "Student's t-test", "Chi-square test", "Mann-Whitney U test"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. The DeLong test</div>\n<p><strong>Where to find it:</strong> Methods, \"Outcome Measures and Statistical Analysis,\" p. 1182 — \"AUROCs were compared with the DeLong test.\"</p>\n<p><strong>Reasoning:</strong> This is a specific methodological detail easy to overlook since it appears in a single short sentence within the statistical methods paragraph. The DeLong test is a well-established statistical method specifically designed for comparing correlated AUROC curves (as here, where the same test set is evaluated against different histologic indices), which is why it's the appropriate choice rather than a more generic test.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. DeLong test</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Methods, \"Outcome Measures and Statistical Analysis\" หน้า 1182 — \"AUROCs were compared with the DeLong test\"</p>\n<p><strong>เหตุผล:</strong> เป็นรายละเอียดเชิงระเบียบวิธีที่เจาะจงและมองข้ามได้ง่าย เพราะปรากฏในประโยคสั้นๆ เพียงประโยคเดียวในย่อหน้าวิธีการทางสถิติ DeLong test เป็นวิธีทางสถิติที่ได้รับการยอมรับอย่างดีสำหรับการเปรียบเทียบเส้นโค้ง AUROC ที่มีความสัมพันธ์กัน (เช่นในกรณีนี้ที่ใช้ชุด test เดียวกันมาประเมินกับดัชนีทางจุลพยาธิวิทยาต่างกัน) จึงเป็นตัวเลือกที่เหมาะสมกว่าการทดสอบทั่วไปแบบอื่น<br><b>คำตอบ: A ✓</b></p>"}, {"n": 13, "diff": "hard", "en": "According to the Discussion, what are the TWO specific future directions the authors propose for improving their AI model?", "th": "ตาม Discussion ผู้เขียนเสนอทิศทางในอนาคต 2 ประการใดโดยเฉพาะสำหรับการพัฒนาแบบจำลอง AI ของพวกเขาต่อไป?", "opts": ["Adding dysplasia detection, and combining histologic + endoscopic AI models into one integrated tool", "Expanding to other IBD subtypes, and reducing processing time below 5 seconds", "Adding genetic biomarkers, and removing the need for digitalized biopsies", "Training on a larger patient population, and adding a fourth histologic index"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Adding dysplasia detection, and combining histologic + endoscopic AI models into one integrated tool</div>\n<p><strong>Where to find it:</strong> Discussion, closing paragraph, p. 1186 — \"Future directions are to include dysplasia detection and to combine histologic and endoscopic AI models into an integrated tool to further improve disease monitoring and prediction.\"</p>\n<p><strong>Reasoning:</strong> This connects directly to two limitations discussed earlier in the same section: (1) \"our system does not address dysplasia detection, the other main indication for biopsies in UC\" and (2) the system currently only handles histologic (not endoscopic) data. The future directions are essentially the authors' proposed fixes for these two named limitations — a good example of how limitations and future directions sections often mirror each other in academic papers.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. เพิ่มการตรวจหา dysplasia และรวมแบบจำลอง AI ด้านจุลพยาธิวิทยา + กล้องส่องตรวจเข้าเป็นเครื่องมือเดียว</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Discussion ย่อหน้าปิดท้าย หน้า 1186 — \"Future directions are to include dysplasia detection and to combine histologic and endoscopic AI models into an integrated tool to further improve disease monitoring and prediction\"</p>\n<p><strong>เหตุผล:</strong> คำตอบนี้เชื่อมโยงโดยตรงกับข้อจำกัด 2 ข้อที่กล่าวถึงก่อนหน้าในหัวข้อเดียวกัน: (1) \"ระบบของเราไม่ได้กล่าวถึงการตรวจหา dysplasia ซึ่งเป็นข้อบ่งชี้หลักอีกประการหนึ่งสำหรับชิ้นเนื้อใน UC\" และ (2) ปัจจุบันระบบจัดการได้เฉพาะข้อมูลทางจุลพยาธิวิทยา (ไม่ใช่ข้อมูลกล้องส่องตรวจ) ทิศทางในอนาคตโดยพื้นฐานแล้วคือแนวทางแก้ไขที่ผู้เขียนเสนอสำหรับข้อจำกัดทั้งสองที่ระบุไว้ — เป็นตัวอย่างที่ดีว่าหัวข้อข้อจำกัดและทิศทางในอนาคตมักสะท้อนกันในบทความวิชาการ<br><b>คำตอบ: A ✓</b></p>"}, {"n": 14, "diff": "hard", "en": "<div class=\"context-block\"><div class=\"ctx-title\">Refer to Table 2 — Calibration vs. Test set performance</div>PHRI Calibration set (n=42): Sensitivity 0.76 (0.50–0.93), Specificity 0.96 (0.80–0.99). PHRI Test set (n=375): Sensitivity 0.89 (0.82–0.94), Specificity 0.85 (0.80–0.89).</div><br>\nBased on standard statistical reasoning about sample sizes, what is the most likely explanation for the wider confidence intervals seen in the calibration set compared to the test set?", "th": "<div class=\"context-block\"><div class=\"ctx-title\">อ้างอิง Table 2 — ประสิทธิภาพชุด Calibration เทียบกับชุด Test</div>ชุด PHRI Calibration (n=42): Sensitivity 0.76 (0.50–0.93), Specificity 0.96 (0.80–0.99) ชุด PHRI Test (n=375): Sensitivity 0.89 (0.82–0.94), Specificity 0.85 (0.80–0.89)</div><br>\nตามหลักการให้เหตุผลทางสถิติเรื่องขนาดกลุ่มตัวอย่าง อะไรคือคำอธิบายที่เป็นไปได้มากที่สุดสำหรับช่วงความเชื่อมั่น (confidence interval) ที่กว้างกว่าในชุด calibration เมื่อเทียบกับชุด test?", "opts": ["The much smaller sample size of the calibration set (n=42 vs. n=375) naturally produces wider, less statistically stable confidence intervals", "The AI model was secretly retrained between the calibration and test phases, causing the difference", "The calibration set contained only healthy patients, which explains the different numbers", "There is no valid statistical explanation; the results likely contain an error"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. The much smaller sample size of the calibration set (n=42) naturally produces wider, less stable confidence intervals</div>\n<p><strong>Where to find it:</strong> Table 2, p. 1184 — compare the width of the parenthetical 95% CI ranges: Calibration sensitivity 0.76 (0.50–0.93) spans 0.43 wide; Test sensitivity 0.89 (0.82–0.94) spans only 0.12 wide.</p>\n<p><strong>Reasoning:</strong> This is a general statistical principle applicable beyond just this paper: confidence intervals narrow as sample size increases, because larger samples give more precise, stable estimates of a true underlying value. With only 42 biopsies in calibration versus 375 in the test set, point estimates from calibration (like specificity reaching a seemingly impressive 96%) are much less certain and shouldn't be over-interpreted as the model's \"true\" performance — the larger test set's numbers are more trustworthy. This kind of numeracy-based inference (not a directly stated sentence) is a hallmark of \"hard\" open-book questions.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. ขนาดกลุ่มตัวอย่างที่เล็กกว่ามากของชุด calibration (n=42 เทียบกับ n=375) ทำให้ช่วงความเชื่อมั่นกว้างและไม่เสถียรทางสถิติตามธรรมชาติ</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Table 2 หน้า 1184 — เปรียบเทียบความกว้างของช่วง 95% CI ในวงเล็บ: Sensitivity ของ calibration 0.76 (0.50–0.93) กว้างถึง 0.43; Sensitivity ของ test 0.89 (0.82–0.94) กว้างเพียง 0.12</p>\n<p><strong>เหตุผล:</strong> นี่คือหลักการทางสถิติทั่วไปที่ใช้ได้กว้างกว่าแค่บทความนี้: ช่วงความเชื่อมั่นจะแคบลงเมื่อขนาดกลุ่มตัวอย่างเพิ่มขึ้น เพราะกลุ่มตัวอย่างที่ใหญ่ขึ้นให้ค่าประมาณที่แม่นยำและเสถียรกว่าต่อค่าจริงที่แฝงอยู่ ด้วยชิ้นเนื้อเพียง 42 ชิ้นในชุด calibration เทียบกับ 375 ชิ้นในชุด test ค่าประมาณจากชุด calibration (เช่น specificity ที่ดูน่าประทับใจถึง 96%) มีความไม่แน่นอนมากกว่ามาก และไม่ควรตีความเกินจริงว่าเป็นประสิทธิภาพ \"จริง\" ของแบบจำลอง — ตัวเลขจากชุด test ที่ใหญ่กว่าน่าเชื่อถือกว่า การอนุมานเชิงตัวเลขแบบนี้ (ไม่ใช่ประโยคที่ระบุตรงๆ) เป็นเอกลักษณ์ของคำถามเปิดหนังสือระดับ \"ยาก\"<br><b>คำตอบ: A ✓</b></p>"}, {"n": 15, "diff": "hard", "en": "The Discussion argues that having biopsies collected and processed at DIFFERENT hospitals (rather than one standardized center) was actually a STRENGTH of the study design, not a weakness. What is the reasoning behind this claim?", "th": "Discussion โต้แย้งว่าการที่ชิ้นเนื้อถูกเก็บและประมวลผลที่โรงพยาบาล<strong>ต่างกัน</strong> (แทนที่จะเป็นศูนย์มาตรฐานเดียว) แท้จริงแล้วเป็น<strong>จุดแข็ง</strong>ของการออกแบบงานวิจัย ไม่ใช่จุดอ่อน เหตุผลเบื้องหลังข้อโต้แย้งนี้คืออะไร?", "opts": ["Because using different equipment, forceps, and staining techniques across hospitals added natural variability (heterogeneity) to the data, which reduces the AI's risk of \"overfitting\" to features specific to just one hospital's processing methods", "Because it was cheaper to collect data from multiple hospitals than from just one", "Because different hospitals have different disease prevalence rates, which the AI specifically needed to learn to diagnose correctly", "Because ethics approval was easier to obtain from multiple smaller committees than one large one"], "ans": 0, "exp_en": "<div class=\"ans-badge\">✓ A. Different hospitals added heterogeneity, reducing the AI's risk of overfitting to one hospital's specific processing methods</div>\n<p><strong>Where to find it:</strong> Discussion, p. 1185 — \"The multicenter international collaboration, involving centers in different countries, allowed not only to access a large sample size but, equally importantly, to mitigate the risk of algorithm overfitting...The main cause of overfitting is data homogeneity. In the field of histopathology, biopsy taking and processing involve several technical steps that can influence homogeneity, such as using the same type of biopsy forceps, tissue orientation, biopsy stains, glasses, and so forth. In our study, biopsies were collected and processed in the respective hospitals, adding heterogeneity, reducing the risk of overfitting, and supporting the generalizability of the results.\"</p>\n<p><strong>Reasoning:</strong> This requires synthesizing an entire paragraph's argument rather than locating one fact. The core logical chain is: same-hospital processing → homogeneous (too-similar) data → AI risks learning hospital-specific quirks instead of the true disease signal → poor performance on new hospitals' data (overfitting). Multi-hospital processing → heterogeneous data → AI is forced to learn features that generalize across different equipment/staining/technique differences → better real-world performance, as later confirmed when the model still performed well in the external validation cohort from entirely new hospitals.</p>", "exp_th": "<div class=\"ans-badge\">✓ A. โรงพยาบาลที่ต่างกันเพิ่มความหลากหลายของข้อมูล ลดความเสี่ยงที่ AI จะ overfitting กับวิธีประมวลผลเฉพาะของโรงพยาบาลใดโรงพยาบาลหนึ่ง</div>\n<p><strong>ตำแหน่งที่หาคำตอบได้:</strong> Discussion หน้า 1185 — \"The multicenter international collaboration...allowed not only to access a large sample size but, equally importantly, to mitigate the risk of algorithm overfitting...The main cause of overfitting is data homogeneity...In our study, biopsies were collected and processed in the respective hospitals, adding heterogeneity, reducing the risk of overfitting, and supporting the generalizability of the results\"</p>\n<p><strong>เหตุผล:</strong> คำถามนี้ต้องสังเคราะห์ข้อโต้แย้งทั้งย่อหน้า ไม่ใช่แค่หาข้อเท็จจริงเดียว ห่วงโซ่เหตุผลหลักคือ: ประมวลผลที่โรงพยาบาลเดียวกัน → ข้อมูลคล้ายกันเกินไป (homogeneous) → AI เสี่ยงเรียนรู้ลักษณะเฉพาะของโรงพยาบาลนั้นแทนที่จะเรียนรู้สัญญาณของโรคที่แท้จริง → ประสิทธิภาพแย่ลงเมื่อใช้กับข้อมูลจากโรงพยาบาลใหม่ (overfitting) ในทางกลับกัน ประมวลผลจากหลายโรงพยาบาล → ข้อมูลหลากหลาย (heterogeneous) → AI ถูกบังคับให้เรียนรู้คุณลักษณะที่ใช้ได้ทั่วไปข้ามความแตกต่างของอุปกรณ์/การย้อมสี/เทคนิค → ประสิทธิภาพดีขึ้นในโลกจริง ซึ่งได้รับการยืนยันภายหลังเมื่อแบบจำลองยังคงทำงานได้ดีในกลุ่ม external validation จากโรงพยาบาลใหม่ทั้งหมด<br><b>คำตอบ: A ✓</b></p>"}];
+
+let cur=0;
+const answered=new Array(QS.length).fill(null);
+const chosen=new Array(QS.length).fill(null);
+const expLang=new Array(QS.length).fill("en");
+
+function updateHeader(){
+  const done=answered.filter(a=>a!==null).length;
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  document.getElementById('h-done').textContent=done;
+  document.getElementById('h-corr').textContent=corr;
+  document.getElementById('h-wrong').textContent=done-corr;
+  document.getElementById('prog-fill').style.width=(done/QS.length*100)+'%';
+  document.getElementById('prog-val').textContent=done+'/'+QS.length;
+}
+function renderNav(){
+  document.getElementById('qnav').innerHTML=QS.map((q,i)=>{
+    let cls='qdot';
+    if(i===cur)cls+=' cur';
+    else if(answered[i]!==null)cls+=answered[i]===QS[i].ans?' ok':' ng';
+    return `<button class="${cls}" onclick="go(${i})" title="Q${q.n} (${q.diff})">Q${q.n}</button>`;
+  }).join('');
+}
+function renderQ(){
+  const q=QS[cur];
+  const ltrs=['A','B','C','D'];
+  const isAns=answered[cur]!==null;
+  const lang=expLang[cur];
+  let optsH=q.opts.map((o,i)=>{
+    let cls='opt';
+    if(isAns){if(i===q.ans)cls+=' show-correct';if(i===chosen[cur]&&chosen[cur]!==q.ans)cls+=' wrong';if(i===chosen[cur]&&chosen[cur]===q.ans)cls+=' correct';}
+    return `<button class="${cls}" ${isAns?'disabled':''} onclick="pick(${i})"><span class="ltr">${ltrs[i]}.</span><span>${o}</span></button>`;
+  }).join('');
+  const expShow=isAns?' show':'';
+  const enA=lang==='en'?' active':'';
+  const thA=lang==='th'?' active':'';
+  document.getElementById('qarea').innerHTML=`
+<div class="qcard">
+  <div class="qmeta">
+    <span class="qnum">Q${q.n} / ${QS.length}</span>
+    <span class="qdiff ${q.diff}">${({easy:'Easy',medium:'Medium',hard:'Hard'})[q.diff]}</span>
+  </div>
+  <div class="qen">${q.en}</div>
+  <div class="qth">${q.th}</div>
+  <div class="opts">${optsH}</div>
+  <div class="expbox${expShow}">
+    <div class="exphdr">
+      Explanation / เฉลยละเอียด
+      <button class="elang${enA}" onclick="setLang(${cur},'en')">EN</button>
+      <button class="elang${thA}" onclick="setLang(${cur},'th')">TH ภาษาไทย</button>
+    </div>
+    <div class="expbody">
+      <div class="exp-en${lang==='en'?' on':''}">${q.exp_en}</div>
+      <div class="exp-th${lang==='th'?' on':''}">${q.exp_th}</div>
+    </div>
+  </div>
+</div>`;
+  document.getElementById('nav-lbl').textContent=`${cur+1} / ${QS.length}`;
+  document.getElementById('btn-prev').disabled=(cur===0);
+  const btnNext=document.getElementById('btn-next');
+  if(cur===QS.length-1){btnNext.textContent='ดูผลรวม →';btnNext.onclick=showResult;}
+  else{btnNext.textContent='Next →';btnNext.onclick=()=>go(cur+1);}
+}
+function setLang(i,l){expLang[i]=l;renderQ();}
+function pick(i){
+  if(answered[cur]!==null)return;
+  chosen[cur]=i;answered[cur]=i;
+  renderNav();renderQ();updateHeader();
+}
+function go(i){if(i<0||i>=QS.length)return;cur=i;renderAll();}
+function renderAll(){renderNav();renderQ();updateHeader();}
+
+function showResult(){
+  document.getElementById('quiz-view').classList.add('hidden');
+  const rv=document.getElementById('result-view');rv.classList.remove('hidden');
+  const corr=answered.filter((a,i)=>a!==null&&a===QS[i].ans).length;
+  const done=answered.filter(a=>a!==null).length;
+  const pct=Math.round(corr/QS.length*100);
+  const msg=pct>=80?'เยี่ยมมาก! 🎉':pct>=60?'ดีมาก ทบทวนข้อที่ผิดด้วยนะ 👍':'ลองทบทวนแล้วทำใหม่อีกรอบ 📚';
+  const DIFFS=['easy','medium','hard'];
+  const DLABEL={easy:'Easy',medium:'Medium',hard:'Hard'};
+  let topicRows=DIFFS.map(d=>{
+    const ti=QS.map((_,i)=>i).filter(i=>QS[i].diff===d);
+    const tc=ti.filter(i=>answered[i]===QS[i].ans).length;
+    const pt=Math.round(tc/ti.length*100);
+    return `<div class="trow"><div class="tname">${DLABEL[d]}</div><div class="tbar"><div class="tbfill" style="width:${pt}%"></div></div><div class="tpct">${tc}/${ti.length}</div></div>`;
+  }).join('');
+  rv.innerHTML=`
+<div class="big">${corr}<span class="total">/${QS.length}</span></div>
+<div class="msg">${msg}</div>
+<div class="rgrid">
+  <div class="rstat"><div class="n" style="color:var(--green)">${corr}</div><div class="l">ถูก</div></div>
+  <div class="rstat"><div class="n" style="color:var(--red)">${done-corr}</div><div class="l">ผิด</div></div>
+  <div class="rstat"><div class="n">${pct}%</div><div class="l">คะแนน</div></div>
+</div>
+<div class="tbreak"><h3>By Difficulty</h3>${topicRows}</div>
+<button class="btn pri" onclick="restart()" style="padding:12px 32px;font-size:15px;margin-bottom:10px">ทำใหม่</button><br>
+<button class="btn" onclick="reviewWrong()" style="font-size:13px">ทบทวนข้อที่ผิด</button>`;
+}
+function restart(){
+  answered.fill(null);chosen.fill(null);expLang.fill("en");
+  cur=0;
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+function reviewWrong(){
+  const wrong=QS.map((_,i)=>i).filter(i=>answered[i]!==null&&answered[i]!==QS[i].ans);
+  if(!wrong.length){alert('ไม่มีข้อผิด! 🎉');return;}
+  cur=wrong[0];
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('quiz-view').classList.remove('hidden');
+  renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>
